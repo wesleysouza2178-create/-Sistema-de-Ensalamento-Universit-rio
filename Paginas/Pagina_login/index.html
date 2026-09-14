@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | CampusSync</title>
+    <link rel="stylesheet" href="../../Css_geral/global.css" />
+    <style>
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #edf5ff 0%, #ffffff 100%);
+      }
+
+      .login-wrapper {
+        width: min(100%, 980px);
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        background: #fff;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 40px rgba(13, 59, 102, 0.12);
+        overflow: hidden;
+      }
+
+      .login-visual {
+        background: linear-gradient(135deg, #0d3b66 0%, #1d5ea8 100%);
+        padding: 2.5rem;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .login-visual h1 {
+        font-size: clamp(2rem, 4vw, 3rem);
+        line-height: 1.1;
+        margin-bottom: 1rem;
+      }
+
+      .login-visual p {
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 1.5rem;
+      }
+
+      .info-list {
+        list-style: none;
+        display: grid;
+        gap: 0.8rem;
+      }
+
+      .info-list li {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #9ad2ff;
+      }
+
+      .login-form-box {
+        padding: 2.5rem 2rem;
+      }
+
+      .login-form-box h2 {
+        color: var(--azul-escuro);
+        margin-bottom: 0.5rem;
+      }
+
+      .login-form-box p {
+        color: var(--cinza-700);
+        margin-bottom: 1.5rem;
+      }
+
+      form {
+        display: grid;
+        gap: 1rem;
+      }
+
+      label {
+        display: grid;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--azul-escuro);
+      }
+
+      input,
+      select {
+        padding: 0.9rem 1rem;
+        border: 1px solid rgba(13, 59, 102, 0.12);
+        border-radius: 0.85rem;
+        font: inherit;
+        background: #f8fbff;
+      }
+
+      input:focus,
+      select:focus {
+        outline: 2px solid rgba(29, 94, 168, 0.15);
+        border-color: var(--azul-medio);
+      }
+
+      .login-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+      }
+
+      .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, var(--azul-medio), var(--azul-escuro));
+        color: var(--branco);
+        border: none;
+        border-radius: 0.9rem;
+        padding: 0.95rem 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .secondary-link {
+        text-align: center;
+        color: var(--azul-medio);
+        font-weight: 600;
+      }
+
+      .message {
+        min-height: 1.2rem;
+        color: #b42318;
+        font-size: 0.92rem;
+      }
+
+      @media (max-width: 760px) {
+        .login-wrapper {
+          grid-template-columns: 1fr;
+        }
+
+        .login-visual {
+          padding: 2rem 1.5rem;
+        }
+
+        .login-form-box {
+          padding: 1.5rem 1.25rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="login-wrapper">
+      <section class="login-visual">
+        <div class="brand" style="color: white; margin-bottom: 1.2rem;">
+          <span class="brand-mark">C</span>
+          <span>CampusSync</span>
+        </div>
+        <h1>Seu sistema de ensalamento universitário.</h1>
+        <p>Controle de horários, salas, professores e informações em uma plataforma simples e eficiente.</p>
+
+        <ul class="info-list">
+          <li><span class="dot"></span> Acesso individual por perfil</li>
+          <li><span class="dot"></span> Atualização em tempo real</li>
+          <li><span class="dot"></span> Organização escolar e acadêmica</li>
+        </ul>
+      </section>
+
+      <section class="login-form-box">
+        <h2>Entrar no sistema</h2>
+        <p>Informe seus dados para acessar o painel correspondente.</p>
+
+        <form id="loginForm">
+          <label>
+            Usuário
+            <input type="text" id="usuario" placeholder="Digite seu usuário" required />
+          </label>
+
+          <label>
+            Senha
+            <input type="password" id="senha" placeholder="Digite sua senha" required />
+          </label>
+
+          <label>
+            Perfil
+            <select id="perfil">
+              <option value="aluno">Aluno</option>
+              <option value="professor">Professor</option>
+              <option value="coordenador">Coordenador</option>
+              <option value="admin">Administração</option>
+            </select>
+          </label>
+
+          <div class="login-actions">
+            <button type="submit" class="btn-login">Entrar</button>
+            <a class="secondary-link" href="../../index.html">Voltar para a página inicial</a>
+          </div>
+
+          <div class="message" id="message" aria-live="polite"></div>
+        </form>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

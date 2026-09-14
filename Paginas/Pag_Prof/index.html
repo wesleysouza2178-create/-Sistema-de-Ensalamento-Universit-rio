@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel do Professor | CampusSync</title>
+    <link rel="stylesheet" href="../../Css_geral/global.css" />
+    <link rel="stylesheet" href="prof.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar" id="sidebarProfessor">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Abrir menu">☰</button>
+        <div class="dashboard-brand">
+          <span class="brand-mark">C</span>
+          <span>CampusSync</span>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Menu do professor">
+          <a href="#overview" class="active">Dashboard</a>
+          <a href="#turmas">Turmas</a>
+          <a href="#labs">Laboratórios</a>
+          <a href="#presenca">Presença</a>
+          <a href="#calendario">Calendário</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <div class="dashboard-topbar">
+          <h1>Olá, professor</h1>
+          <div class="user-pill" id="userBadge">Carregando...</div>
+        </div>
+
+        <section class="dashboard-grid dashboard-grid--wide" id="overview">
+          <article class="dashboard-card" id="turmas">
+            <span class="card-label">Turma atual</span>
+            <h2>ADS - 3º Semestre</h2>
+            <p>Disciplina: Sistemas Distribuídos</p>
+            <p>Segunda e Quarta • 13:00</p>
+          </article>
+
+          <article class="dashboard-card" id="presenca">
+            <span class="card-label">Presença</span>
+            <h2>32/36 alunos</h2>
+            <p>4 faltas pendentes</p>
+          </article>
+
+          <article class="dashboard-card">
+            <span class="card-label">Atividades</span>
+            <h2>05 próximas</h2>
+            <p>2 entregas esta semana</p>
+          </article>
+
+          <article class="dashboard-card" id="calendario">
+            <span class="card-label">Laboratórios</span>
+            <h2>06 disponíveis</h2>
+            <p>2 reservados para turma</p>
+          </article>
+        </section>
+
+        <section class="insight-panel">
+          <div class="insight-card">
+            <h3>Resumo da semana</h3>
+            <ul class="insight-list">
+              <li><span>Frequência média</span><span class="status-pill">89%</span></li>
+              <li><span>Atividades entregues</span><span class="status-pill">28</span></li>
+              <li><span>Próxima avaliação</span><span class="status-pill warning">12/09</span></li>
+            </ul>
+          </div>
+
+          <div class="insight-card">
+            <h3>Alertas</h3>
+            <ul class="insight-list">
+              <li><span>Lab de Redes</span><span class="status-pill">Disponível</span></li>
+              <li><span>Prática de banco</span><span class="status-pill warning">Reservado</span></li>
+              <li><span>Entrega de relatório</span><span class="status-pill alert">Prazo</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="lab-visual-panel" id="labs" aria-labelledby="teacherLabTitle">
+          <div class="lab-visual-header">
+            <h2 id="teacherLabTitle">Laboratórios da instituição</h2>
+            <select id="teacherLabFilter">
+              <option value="todos">Todos</option>
+              <option value="Disponível">Disponíveis</option>
+              <option value="Em uso">Em uso</option>
+              <option value="Em manutenção">Em manutenção</option>
+            </select>
+          </div>
+
+          <div id="teacherLabList" class="lab-visual-list"></div>
+        </section>
+
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+          <button class="logout-btn" id="logoutBtn" type="button">Sair</button>
+        </div>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

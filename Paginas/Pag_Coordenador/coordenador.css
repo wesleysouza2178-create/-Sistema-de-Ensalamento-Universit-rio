@@ -1,0 +1,145 @@
+.coord-lab-panel {
+  margin-top: 2rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 16px 28px rgba(13, 59, 102, 0.06);
+  border: 1px solid rgba(13, 59, 102, 0.06);
+}
+
+.coord-lab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.coord-lab-header h2 {
+  color: var(--azul-escuro);
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+}
+
+.coord-toolbar {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1.4rem;
+  flex-wrap: wrap;
+}
+
+.coord-toolbar input,
+.coord-toolbar select,
+.coord-form input,
+.coord-form select {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(13, 59, 102, 0.12);
+  background: #f8fbff;
+  font: inherit;
+}
+
+.coord-lab-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 1.5rem;
+}
+
+.coord-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.coord-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--azul-escuro);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.coord-list-wrap h3 {
+  color: var(--azul-escuro);
+  margin-bottom: 0.8rem;
+}
+
+.coord-lab-list {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.coord-lab-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(13, 59, 102, 0.06);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #f7faff 0%, #eef5ff 100%);
+  transition: transform 0.2s ease;
+}
+
+.coord-lab-item:hover {
+  transform: translateY(-1px);
+}
+
+.coord-lab-item h4 {
+  color: var(--azul-escuro);
+  margin-bottom: 0.45rem;
+}
+
+.coord-lab-item p {
+  color: var(--cinza-700);
+  font-size: 0.85rem;
+  margin: 0.12rem 0;
+}
+
+.coord-lab-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.mini-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.empty-state {
+  padding: 1rem;
+  border-radius: 0.8rem;
+  color: var(--cinza-700);
+  background: #f8fbff;
+  border: 1px dashed rgba(13, 59, 102, 0.14);
+}
+
+@media (max-width: 900px) {
+  .coord-lab-layout,
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .coord-lab-item {
+    flex-direction: column;
+  }
+
+  .coord-lab-actions {
+    align-items: flex-start;
+  }
+}

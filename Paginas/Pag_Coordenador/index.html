@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel do Coordenador | CampusSync</title>
+    <link rel="stylesheet" href="../../Css_geral/global.css" />
+    <link rel="stylesheet" href="coordenador.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar" id="sidebarCoordenador">
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Abrir menu">☰</button>
+        <div class="dashboard-brand">
+          <span class="brand-mark">C</span>
+          <span>CampusSync</span>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Menu do coordenador">
+          <a href="#overview" class="active">Dashboard</a>
+          <a href="#turmas">Turmas</a>
+          <a href="#labs">Laboratórios</a>
+          <a href="#salas">Salas</a>
+          <a href="#relatorios">Relatórios</a>
+        </nav>
+      </aside>
+
+      <main class="dashboard-main">
+        <div class="dashboard-topbar"> 
+          <h1>Olá, coordenador</h1>
+          <div class="user-pill" id="userBadge">Carregando...</div>
+        </div>
+
+        <section class="dashboard-grid dashboard-grid--wide" id="overview">
+          <article class="dashboard-card" id="turmas">
+            <span class="card-label">Turmas</span>
+            <h2>12 turmas ativas</h2>
+            <p>3 em ajustes de horário</p>
+          </article>
+
+          <article class="dashboard-card" id="salas">
+            <span class="card-label">Salas</span>
+            <h2>08 disponíveis</h2>
+            <p>2 reservadas para hoje</p>
+          </article>
+
+          <article class="dashboard-card">
+            <span class="card-label">Laboratórios</span>
+            <h2>14 cadastrados</h2>
+            <p>2 em manutenção</p>
+          </article>
+
+          <article class="dashboard-card" id="relatorios">
+            <span class="card-label">Faltas</span>
+            <h2>18 pendentes</h2>
+            <p>4 em análise</p>
+          </article>
+        </section>
+
+        <section class="insight-panel">
+          <div class="insight-card">
+            <h3>Uso da semana</h3>
+            <ul class="insight-list">
+              <li><span>Taxa de ocupação</span><span class="status-pill">78%</span></li>
+              <li><span>Conflitos de horário</span><span class="status-pill warning">02</span></li>
+              <li><span>Laboratórios livres</span><span class="status-pill">06</span></li>
+            </ul>
+          </div>
+
+          <div class="insight-card">
+            <h3>Alertas</h3>
+            <ul class="insight-list">
+              <li><span>Auditório 2</span><span class="status-pill">Disponível</span></li>
+              <li><span>Lab de Química</span><span class="status-pill warning">Em uso</span></li>
+              <li><span>Bloco C</span><span class="status-pill alert">Revisão</span></li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="coord-lab-panel" id="labs" aria-labelledby="coordLabTitle">
+          <div class="coord-lab-header">
+            <h2 id="coordLabTitle">Gestão de laboratórios</h2>
+            <button class="secondary-btn" id="resetCoordLabsBtn" type="button">Resetar</button>
+          </div>
+
+          <div class="coord-toolbar">
+            <input id="labSearch" type="search" placeholder="Buscar laboratório" />
+            <select id="labFilterStatus">
+              <option value="todos">Todos os status</option>
+              <option value="Disponível">Disponível</option>
+              <option value="Em uso">Em uso</option>
+              <option value="Em manutenção">Em manutenção</option>
+            </select>
+          </div>
+
+          <div class="coord-lab-layout">
+            <form id="coordLabForm" class="coord-form">
+              <input type="hidden" id="labIdEdit" />
+
+              <div class="form-row">
+                <label>
+                  Nome do laboratório
+                  <input id="labNome" type="text" required />
+                </label>
+                <label>
+                  Bloco
+                  <input id="labBloco" type="text" required />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  Capacidade
+                  <input id="labCapacidade" type="number" min="1" required />
+                </label>
+                <label>
+                  Tipo
+                  <select id="labTipo" required>
+                    <option value="">Selecione</option>
+                    <option value="Informática">Informática</option>
+                    <option value="Ciências">Ciências</option>
+                    <option value="Eletrônica">Eletrônica</option>
+                    <option value="Química">Química</option>
+                    <option value="Multidisciplinar">Multidisciplinar</option>
+                  </select>
+                </label>
+              </div>
+
+              <label>
+                Equipamentos
+                <input id="labEquipamentos" type="text" required />
+              </label>
+
+              <div class="form-row">
+                <label>
+                  Status
+                  <select id="labStatus" required>
+                    <option value="Disponível">Disponível</option>
+                    <option value="Em uso">Em uso</option>
+                    <option value="Em manutenção">Em manutenção</option>
+                  </select>
+                </label>
+                <label>
+                  Observações
+                  <input id="labObs" type="text" />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  Foto do laboratório
+                  <input id="labFoto" type="file" accept="image/*" />
+                </label>
+              </div>
+
+              <div class="lab-photo-preview" id="labPhotoPreviewCoordenador" style="display: none;">
+                <img id="labPreviewImageCoordenador" alt="Prévia da foto do laboratório" />
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="primary-btn">Salvar laboratório</button>
+                <button type="button" id="cancelEditBtn" class="secondary-btn">Cancelar</button>
+              </div>
+            </form>
+
+            <div class="coord-list-wrap">
+              <h3>Laboratórios cadastrados</h3>
+              <div id="coordLabList" class="coord-lab-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+          <button class="logout-btn" id="logoutBtn" type="button">Sair</button>
+        </div>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -3,159 +3,270 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Painel da Administração | CampusSync</title>
-    <link rel="stylesheet" href="../../Css_geral/global.css" />
+    <meta
+      name="description"
+      content="Sistema de ensalamento universitário para alunos, professores, coordenadores e administração."
+    />
+    <title>CampusSync | Ensalamento Universitário</title>
+    <link rel="stylesheet" href="Css_geral/global.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body class="dashboard-body">
-    <div class="dashboard-shell">
-      <aside class="dashboard-sidebar" id="sidebarAdmin">
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Abrir menu">☰</button>
-        <div class="dashboard-brand">
+  <body>
+    <header class="site-header">
+      <div class="container nav-bar">
+        <div class="brand">
           <span class="brand-mark">C</span>
           <span>CampusSync</span>
         </div>
 
-        <nav class="sidebar-nav" aria-label="Menu da administração">
-          <a href="#overview" class="active">Dashboard</a>
-          <a href="#usuarios">Usuários</a>
-          <a href="#labs">Laboratórios</a>
-          <a href="#salas">Salas</a>
-          <a href="#relatorios">Relatórios</a>
+        <nav class="main-nav" aria-label="Menu principal">
+          <a href="#inicio">Início</a>
+          <a href="#funciona">Como funciona</a>
+          <a href="#modulos">Módulos</a>
+          <a href="#contato">Contato</a>
         </nav>
-      </aside>
 
-      <main class="dashboard-main">
-        <div class="dashboard-topbar">
-          <h1>Olá, administração</h1>
-          <div class="user-pill" id="userBadge">Carregando...</div>
-        </div>
+        <a class="btn btn-primary" href="Paginas/Pagina_login/index.html">Entrar</a>
+      </div>
+    </header>
 
-        <section class="dashboard-grid dashboard-grid--wide" id="overview">
-          <article class="dashboard-card" id="usuarios">
-            <span class="card-label">Usuários</span>
-            <h2>1.240 cadastrados</h2>
-            <p>+42 neste mês</p>
-          </article>
-
-          <article class="dashboard-card" id="salas">
-            <span class="card-label">Salas</span>
-            <h2>08 disponíveis</h2>
-            <p>2 reservadas hoje</p>
-          </article>
-
-          <article class="dashboard-card">
-            <span class="card-label">Laboratórios</span>
-            <h2>14 ativos</h2>
-            <p>3 em manutenção</p>
-          </article>
-
-          <article class="dashboard-card">
-            <span class="card-label">Faltas</span>
-            <h2>27 pendentes</h2>
-            <p>+6 desde ontem</p>
-          </article>
-        </section>
-
-        <section class="insight-panel" id="relatorios">
-          <div class="insight-card">
-            <h3>Resumo do campus</h3>
-            <ul class="insight-list">
-              <li><span>Taxa de ocupação</span><span class="status-pill">78%</span></li>
-              <li><span>Disciplinas em uso</span><span class="status-pill">42</span></li>
-              <li><span>Arquivos de suporte</span><span class="status-pill warning">05 pendentes</span></li>
+    <main>
+      <section id="inicio" class="hero">
+        <div class="container hero-content">
+          <div class="hero-text">
+            <span class="eyebrow">Sistema de ensalamento universitário</span>
+            <h1>Organize horários, salas e comunicação da universidade em um só lugar.</h1>
+            <p>
+              Automatizamos o ensalamento acadêmico para manter alunos,
+              professores e coordenação informados em tempo real sobre aulas,
+              laboratórios, salas e decisões da rotina universitária.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="Paginas/Pagina_login/index.html">Acessar login</a>
+              <a class="btn btn-secondary" href="#modulos">Ver módulos</a>
+            </div>
+            <ul class="hero-stats">
+              <li><strong>98%</strong><span>acessos em tempo real</span></li>
+              <li><strong>24/7</strong><span>disponibilidade</span></li>
+              <li><strong>4 perfis</strong><span>universidade inteira</span></li>
             </ul>
           </div>
 
-          <div class="insight-card">
-            <h3>Alertas</h3>
-            <ul class="insight-list">
-              <li><span>Backup semanal</span><span class="status-pill">OK</span></li>
-              <li><span>Manutenção do bloco B</span><span class="status-pill warning">Agendada</span></li>
-              <li><span>Servidor principal</span><span class="status-pill alert">Atenção</span></li>
-            </ul>
-          </div>
-        </section>
-
-        <section class="lab-panel" id="labs" aria-labelledby="labTitle">
-          <div class="lab-panel-header">
-            <h2 id="labTitle">Cadastro de laboratórios</h2>
-            <button class="secondary-btn" type="button" id="resetLabsBtn">Limpar lista</button>
-          </div>
-
-          <div class="lab-content">
-            <form class="lab-form" id="labForm">
-              <div class="form-grid">
-                <div class="form-field">
-                  <label for="nomeLaboratorio">Nome do laboratório</label>
-                  <input id="nomeLaboratorio" name="nomeLaboratorio" type="text" placeholder="Ex.: Lab de Informática" required />
-                </div>
-
-                <div class="form-field">
-                  <label for="blocoLaboratorio">Bloco</label>
-                  <input id="blocoLaboratorio" name="blocoLaboratorio" type="text" placeholder="Ex.: Bloco A" required />
-                </div>
-
-                <div class="form-field">
-                  <label for="capacidadeLaboratorio">Capacidade</label>
-                  <input id="capacidadeLaboratorio" name="capacidadeLaboratorio" type="number" min="1" placeholder="Ex.: 30" required />
-                </div>
-
-                <div class="form-field">
-                  <label for="tipoLaboratorio">Tipo</label>
-                  <select id="tipoLaboratorio" name="tipoLaboratorio" required>
-                    <option value="">Selecione</option>
-                    <option value="Informática">Informática</option>
-                    <option value="Ciências">Ciências</option>
-                    <option value="Eletrônica">Eletrônica</option>
-                    <option value="Química">Química</option>
-                    <option value="Multidisciplinar">Multidisciplinar</option>
-                  </select>
-                </div>
+          <div class="hero-panel">
+            <div class="panel-card">
+              <div class="card-title">
+                <span>Próxima aula</span>
+                <span class="badge">Hoje</span>
               </div>
-
-              <div class="form-field">
-                <label for="equipamentosLaboratorio">Equipamentos</label>
-                <input id="equipamentosLaboratorio" name="equipamentosLaboratorio" type="text" placeholder="Ex.: 20 computadores, projetor, impressora" required />
+              <h3>Engenharia de Software</h3>
+              <div class="schedule-row">
+                <span>Bloco B - Sala 214</span>
+                <strong>08:00</strong>
               </div>
-
-              <div class="form-field">
-                <label for="statusLaboratorio">Status</label>
-                <select id="statusLaboratorio" name="statusLaboratorio" required>
-                  <option value="Disponível">Disponível</option>
-                  <option value="Em uso">Em uso</option>
-                  <option value="Em manutenção">Em manutenção</option>
-                </select>
+              <div class="schedule-row">
+                <span>Professor</span>
+                <strong>Dr. Almeida</strong>
               </div>
-
-              <div class="form-field">
-                <label for="obsLaboratorio">Observações</label>
-                <textarea id="obsLaboratorio" name="obsLaboratorio" placeholder="Informações extras do laboratório"></textarea>
+              <div class="schedule-row">
+                <span>Disponibilidade</span>
+                <strong>96%</strong>
               </div>
-
-              <div class="form-field">
-                <label for="fotoLaboratorio">Foto do laboratório</label>
-                <input id="fotoLaboratorio" name="fotoLaboratorio" type="file" accept="image/*" />
-                <div class="lab-photo-preview" id="labPhotoPreview">
-                  <img id="labPreviewImage" alt="Prévia da foto do laboratório" />
-                </div>
+              <div class="mini-graph" aria-label="Indicador de ocupação">
+                <span class="bar b1"></span>
+                <span class="bar b2"></span>
+                <span class="bar b3"></span>
+                <span class="bar b4"></span>
+                <span class="bar b5"></span>
               </div>
-
-              <button class="primary-btn" type="submit">Adicionar laboratório</button>
-            </form>
-
-            <div>
-              <h3 style="color: var(--azul-escuro); margin-bottom: 0.8rem;">Laboratórios cadastrados</h3>
-              <div class="lab-list" id="labList"></div>
             </div>
           </div>
-        </section>
-
-        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
-          <button class="logout-btn" id="logoutBtn" type="button">Sair</button>
         </div>
-      </main>
-    </div>
+      </section>
 
-    <script src="script.js"></script>
+      <section class="feature-strip">
+        <div class="container feature-row">
+          <div class="feature-box">
+            <strong>Gestão de horários</strong>
+            <span>Distribuição eficiente e organizada</span>
+          </div>
+          <div class="feature-box">
+            <strong>Laboratórios</strong>
+            <span>Cadastro com status e fotos</span>
+          </div>
+          <div class="feature-box">
+            <strong>Salas</strong>
+            <span>Monitoramento de disponibilidade</span>
+          </div>
+          <div class="feature-box">
+            <strong>Relatórios</strong>
+            <span>Visão geral para coordenação</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="quick-overview">
+        <div class="container quick-grid">
+          <article class="quick-card">
+            <span class="card-label">Disponibilidade</span>
+            <h3>96%</h3>
+            <p>de salas e laboratórios com gestão organizada.</p>
+          </article>
+          <article class="quick-card">
+            <span class="card-label">Turmas</span>
+            <h3>12</h3>
+            <p>atualizadas com controle de conflitos e horários.</p>
+          </article>
+          <article class="quick-card">
+            <span class="card-label">Laboratórios</span>
+            <h3>14</h3>
+            <p>registrados com foto, status e observações.</p>
+          </article>
+          <article class="quick-card">
+            <span class="card-label">Faltas</span>
+            <h3>27</h3>
+            <p>monitoradas por perfil de acordo com a rotina acadêmica.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="funciona" class="info-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">Como funciona</span>
+            <h2>Uma solução simples para toda a comunidade acadêmica</h2>
+          </div>
+
+          <div class="card-grid three-columns">
+            <article class="info-card">
+              <div class="icon">01</div>
+              <h3>Cadastro e login</h3>
+              <p>Usuários acessam o sistema com perfil específico para aluno, professor, coordenador ou administração.</p>
+            </article>
+
+            <article class="info-card">
+              <div class="icon">02</div>
+              <h3>Ensalamento automatizado</h3>
+              <p>As aulas, turmas e salas são organizadas com base em regras simples e distribuição equilibrada.</p>
+            </article>
+
+            <article class="info-card">
+              <div class="icon">03</div>
+              <h3>Informações em tempo real</h3>
+              <p>Alertas, horários e atualizações ficam disponíveis para todos em poucos segundos.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="profiles-section">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">Acesso por perfil</span>
+            <h2>Comece pelo ambiente da sua rotina</h2>
+          </div>
+
+          <div class="profile-grid">
+            <a class="profile-card" href="Paginas/Pag_aluno/index.html">
+              <span class="profile-tag">Aluno</span>
+              <h3>Minha grade</h3>
+              <p>Horários, presença e salas disponíveis.</p>
+            </a>
+            <a class="profile-card" href="Paginas/Pag_Prof/index.html">
+              <span class="profile-tag">Professor</span>
+              <h3>Minha turma</h3>
+              <p>Gerencie aulas, presença e laboratórios.</p>
+            </a>
+            <a class="profile-card" href="Paginas/Pag_Coordenador/index.html">
+              <span class="profile-tag">Coordenador</span>
+              <h3>Operação geral</h3>
+              <p>Controle de conflitos, salas e ocupação.</p>
+            </a>
+            <a class="profile-card" href="Paginas/Pag_Adm/index.html">
+              <span class="profile-tag">Administração</span>
+              <h3>Gestão do sistema</h3>
+              <p>Relatórios, usuários e laboratórios cadastrados.</p>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section id="modulos" class="modules">
+        <div class="container">
+          <div class="section-header">
+            <span class="eyebrow">Módulos</span>
+            <h2>Funcionalidades essenciais da plataforma</h2>
+          </div>
+
+          <div class="card-grid four-columns">
+            <article class="module-card">
+              <h3>Aluno</h3>
+              <p>Consulta de horários, sala, professor e avisos da turma.</p>
+            </article>
+            <article class="module-card">
+              <h3>Professor</h3>
+              <p>Controle de disciplinas, disponibilidade de sala e comunicação acadêmica.</p>
+            </article>
+            <article class="module-card">
+              <h3>Coordenador</h3>
+              <p>Gestão de turmas, conflitos e organização acadêmica geral.</p>
+            </article>
+            <article class="module-card">
+              <h3>Administração</h3>
+              <p>Configurações gerais, relatórios e manutenção do sistema.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="location-section">
+        <div class="container location-wrap">
+          <div class="location-text">
+            <span class="eyebrow">Localização</span>
+            <h2>Nosso campus</h2>
+            <p>
+              Avenida xxxxxxxx, 1000 - Bela Vista, xxxxx xxxxxx - xxxxxx.<br />
+              Atendimento presencial e suporte acadêmico disponível de segunda a sexta.
+            </p>
+            <ul>
+              <li>WhatsApp: (xxxx) 99999-0000</li>
+              <li>Email: contato@campussync.edu.br</li>
+              <li>Instagram: @campussync</li>
+            </ul>
+          </div>
+
+          <div class="map-box">
+            <iframe
+              title="Mapa do campus"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-46.654%2C-23.561%2C-46.630%2C-23.545&amp;layer=mapnik"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contato" class="site-footer">
+      <div class="container footer-content">
+        <div>
+          <div class="brand">
+            <span class="brand-mark">C</span>
+            <span>CampusSync</span>
+          </div>
+          <p>Sistema de ensalamento universitário para conectar a comunidade acadêmica.</p>
+        </div>
+
+        <div class="footer-links">
+          <a href="Paginas/Pagina_login/index.html">Login</a>
+          <a href="#modulos">Módulos</a>
+          <a href="#contato">Contato</a>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
