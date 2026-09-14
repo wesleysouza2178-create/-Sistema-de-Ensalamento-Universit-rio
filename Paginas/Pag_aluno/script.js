@@ -8,22 +8,10 @@ const studentLabList = document.getElementById('studentLabList');
 const sidebarToggle = document.getElementById('sidebarToggle');
 const sidebar = document.getElementById('sidebarAluno');
 const reservationsKey = 'reservasAlunoCampusSync';
+const STORAGE_KEY = 'laboratoriosCampusSync';
+const { getLoggedUser, getLabs, escapeHtml, logout } = window.CampusSync;
 
-function getUsuarioLogado() {
-  const localUser = localStorage.getItem('usuarioLogado');
-  const sessionUser = sessionStorage.getItem('usuarioLogado');
-  const rawUser = localUser || sessionUser;
-
-  if (!rawUser) return null;
-
-  try {
-    return JSON.parse(rawUser);
-  } catch {
-    return null;
-  }
-}
-
-const user = getUsuarioLogado();
+const user = getLoggedUser();
 
 if (user) {
   userBadge.textContent = `${user.perfil.toUpperCase()} • ${user.usuario}`;
@@ -32,56 +20,10 @@ if (user) {
   window.location.replace('../Pagina_login/index.html');
 }
 
-const STORAGE_KEY = 'laboratoriosCampusSync';
-
 if (sidebarToggle && sidebar) {
   sidebarToggle.addEventListener('click', () => {
     sidebar.classList.toggle('is-open');
   });
-}
-
-function getLabs() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(saved) && saved.length ? saved : getDefaultLabs();
-  } catch {
-    return getDefaultLabs();
-  }
-}
-
-function getDefaultLabs() {
-  return [
-        {
-          id: 1,
-          nome: 'Laboratório de Informática 01',
-          bloco: 'Bloco A',
-          capacidade: 30,
-          tipo: 'Informática',
-          equipamentos: '20 computadores, projetor, impressora',
-          status: 'Disponível',
-          observacoes: 'Acesso por credencial da turma.'
-        },
-        {
-          id: 2,
-          nome: 'Laboratório de Química',
-          bloco: 'Bloco C',
-          capacidade: 24,
-          tipo: 'Química',
-          equipamentos: 'Bancadas, ventilação, microscópio',
-          status: 'Em uso',
-          observacoes: 'Reservado para aulas práticas.'
-        },
-        {
-          id: 3,
-          nome: 'Laboratório de Eletrônica',
-          bloco: 'Bloco D',
-          capacidade: 18,
-          tipo: 'Eletrônica',
-          equipamentos: 'Osciloscópios, protoboards, soldagem',
-          status: 'Em manutenção',
-          observacoes: 'Acesso restrito até revisão.'
-        }
-  ];
 }
 
 function renderStudentLabs() {
@@ -116,7 +58,7 @@ function renderStudentLabs() {
       (lab) => `
         <article class="lab-visual-item">
           <div style="display:flex; gap: 1rem; flex-wrap: wrap; align-items:flex-start;">
-            ${lab.foto ? `<img class="lab-photo" src="${lab.foto}" alt="${escapeHtml(lab.nome)}" />` : '<div class="lab-photo" style="display:flex;align-items:center;justify-content:center;color:#3d6db5;font-size:0.8rem;">Foto</div>'}
+            ${lab.foto ? `<img class="lab-photo" src="${escapeHtml(lab.foto)}" alt="${escapeHtml(lab.nome)}" />` : '<div class="lab-photo" style="display:flex;align-items:center;justify-content:center;color:#3d6db5;font-size:0.8rem;">Foto</div>'}
             <div>
               <h3>${escapeHtml(lab.nome)}</h3>
               <div class="lab-detail-grid"><p><strong>Local</strong>${escapeHtml(lab.bloco)}</p><p><strong>Tipo</strong>${escapeHtml(lab.tipo)}</p><p><strong>Capacidade</strong>${escapeHtml(lab.capacidade)} alunos</p></div>
@@ -124,7 +66,7 @@ function renderStudentLabs() {
             </div>
           </div>
           <div class="lab-visual-meta">
-            <span class="status-badge ${lab.status === 'Em uso' ? 'warning-badge' : ''}">${lab.status}</span>
+            <span class="status-badge ${lab.status === 'Em uso' ? 'warning-badge' : ''}">${escapeHtml(lab.status)}</span>
             ${lab.status === 'Disponível' ? `<button type="button" class="lab-reserve-btn ${reservations.includes(String(lab.id)) ? 'is-reserved' : ''}" data-lab-id="${lab.id}">${reservations.includes(String(lab.id)) ? 'Cancelar reserva' : 'Reservar'}</button>` : '<small class="lab-unavailable">Indisponível para reserva</small>'}
           </div>
         </article>
@@ -141,10 +83,6 @@ function renderStudentLabs() {
       renderStudentLabs();
     });
   });
-}
-
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
 }
 
 function getReservations() {
@@ -165,11 +103,7 @@ window.addEventListener('storage', (event) => {
 });
 
 if (logoutBtn) {
-  logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('usuarioLogado');
-    sessionStorage.removeItem('usuarioLogado');
-    window.location.replace('../Pagina_login/index.html');
-  });
+  logoutBtn.addEventListener('click', logout);
 }
 
 renderStudentLabs();

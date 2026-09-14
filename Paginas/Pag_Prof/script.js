@@ -4,22 +4,9 @@ const teacherLabFilter = document.getElementById('teacherLabFilter');
 const teacherLabList = document.getElementById('teacherLabList');
 const sidebarToggle = document.getElementById('sidebarToggle');
 const sidebar = document.getElementById('sidebarProfessor');
+const { getLoggedUser, getLabs, escapeHtml, logout } = window.CampusSync;
 
-function getUsuarioLogado() {
-  const localUser = localStorage.getItem('usuarioLogado');
-  const sessionUser = sessionStorage.getItem('usuarioLogado');
-  const rawUser = localUser || sessionUser;
-
-  if (!rawUser) return null;
-
-  try {
-    return JSON.parse(rawUser);
-  } catch {
-    return null;
-  }
-}
-
-const user = getUsuarioLogado();
+const user = getLoggedUser();
 
 if (user) {
   userBadge.textContent = `${user.perfil.toUpperCase()} • ${user.usuario}`;
@@ -28,56 +15,10 @@ if (user) {
   window.location.replace('../Pagina_login/index.html');
 }
 
-const STORAGE_KEY = 'laboratoriosCampusSync';
-
 if (sidebarToggle && sidebar) {
   sidebarToggle.addEventListener('click', () => {
     sidebar.classList.toggle('is-open');
   });
-}
-
-function getLabs() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(saved) && saved.length ? saved : getDefaultLabs();
-  } catch {
-    return getDefaultLabs();
-  }
-}
-
-function getDefaultLabs() {
-  return [
-        {
-          id: 1,
-          nome: 'Laboratório de Informática 01',
-          bloco: 'Bloco A',
-          capacidade: 30,
-          tipo: 'Informática',
-          equipamentos: '20 computadores, projetor, impressora',
-          status: 'Disponível',
-          observacoes: 'Acesso por credencial da turma.'
-        },
-        {
-          id: 2,
-          nome: 'Laboratório de Química',
-          bloco: 'Bloco C',
-          capacidade: 24,
-          tipo: 'Química',
-          equipamentos: 'Bancadas, ventilação, microscópio',
-          status: 'Em uso',
-          observacoes: 'Reservado para aulas práticas.'
-        },
-        {
-          id: 3,
-          nome: 'Laboratório de Eletrônica',
-          bloco: 'Bloco D',
-          capacidade: 18,
-          tipo: 'Eletrônica',
-          equipamentos: 'Osciloscópios, protoboards, soldagem',
-          status: 'Em manutenção',
-          observacoes: 'Acesso restrito até revisão.'
-        }
-  ];
 }
 
 function renderTeacherLabs() {
@@ -94,18 +35,18 @@ function renderTeacherLabs() {
       (lab) => `
         <article class="lab-visual-item">
           <div style="display:flex; gap: 1rem; flex-wrap: wrap; align-items:flex-start;">
-            ${lab.foto ? `<img class="lab-photo" src="${lab.foto}" alt="${lab.nome}" />` : '<div class="lab-photo" style="display:flex;align-items:center;justify-content:center;color:#3d6db5;font-size:0.8rem;">Foto</div>'}
+            ${lab.foto ? `<img class="lab-photo" src="${escapeHtml(lab.foto)}" alt="${escapeHtml(lab.nome)}" />` : '<div class="lab-photo" style="display:flex;align-items:center;justify-content:center;color:#3d6db5;font-size:0.8rem;">Foto</div>'}
             <div>
-              <h3>${lab.nome}</h3>
-              <p>Bloco: ${lab.bloco}</p>
-              <p>Tipo: ${lab.tipo}</p>
-              <p>Capacidade: ${lab.capacidade} alunos</p>
-              <p>Equipamentos: ${lab.equipamentos}</p>
-              <p>Observações: ${lab.observacoes || 'Sem observações'}</p>
+              <h3>${escapeHtml(lab.nome)}</h3>
+              <p>Bloco: ${escapeHtml(lab.bloco)}</p>
+              <p>Tipo: ${escapeHtml(lab.tipo)}</p>
+              <p>Capacidade: ${escapeHtml(lab.capacidade)} alunos</p>
+              <p>Equipamentos: ${escapeHtml(lab.equipamentos)}</p>
+              <p>Observações: ${escapeHtml(lab.observacoes || 'Sem observações')}</p>
             </div>
           </div>
           <div class="lab-visual-meta">
-            <span class="status-badge ${lab.status === 'Em uso' ? 'warning-badge' : ''}">${lab.status}</span>
+            <span class="status-badge ${lab.status === 'Em uso' ? 'warning-badge' : ''}">${escapeHtml(lab.status)}</span>
           </div>
         </article>
       `
@@ -116,11 +57,7 @@ function renderTeacherLabs() {
 teacherLabFilter.addEventListener('change', renderTeacherLabs);
 
 if (logoutBtn) {
-  logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('usuarioLogado');
-    sessionStorage.removeItem('usuarioLogado');
-    window.location.replace('../Pagina_login/index.html');
-  });
+  logoutBtn.addEventListener('click', logout);
 }
 
 renderTeacherLabs();

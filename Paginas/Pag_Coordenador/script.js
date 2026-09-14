@@ -11,26 +11,12 @@ const sidebar = document.getElementById('sidebarCoordenador');
 const labFotoInput = document.getElementById('labFoto');
 const labPreviewImage = document.getElementById('labPreviewImageCoordenador');
 const labPreviewWrapper = document.getElementById('labPhotoPreviewCoordenador');
-const editBanner = document.getElementById('coordEditBanner');
-const cancelEditTop = document.getElementById('cancelEditTop');
 const saveLabBtn = document.getElementById('coordSaveLabBtn');
 const labFeedback = document.getElementById('coordLabFeedback');
+const { getLoggedUser, getLabs, saveLabs, escapeHtml, logout } = window.CampusSync;
+const STORAGE_KEY = 'laboratoriosCampusSync';
 
-function getUsuarioLogado() {
-  const localUser = localStorage.getItem('usuarioLogado');
-  const sessionUser = sessionStorage.getItem('usuarioLogado');
-  const rawUser = localUser || sessionUser;
-
-  if (!rawUser) return null;
-
-  try {
-    return JSON.parse(rawUser);
-  } catch {
-    return null;
-  }
-}
-
-const user = getUsuarioLogado();
+const user = getLoggedUser();
 
 if (user) {
   userBadge.textContent = `${user.perfil.toUpperCase()} • ${user.usuario}`;
@@ -39,49 +25,10 @@ if (user) {
   window.location.replace('../Pagina_login/index.html');
 }
 
-const STORAGE_KEY = 'laboratoriosCampusSync';
-
 if (sidebarToggle && sidebar) {
   sidebarToggle.addEventListener('click', () => {
     sidebar.classList.toggle('is-open');
   });
-}
-
-const defaultLabs = [
-  {
-    id: 1,
-    nome: 'Laboratório de Informática 01',
-    bloco: 'Bloco A',
-    capacidade: 30,
-    tipo: 'Informática',
-    equipamentos: '20 computadores, projetor, impressora',
-    status: 'Disponível',
-    observacoes: 'Acesso por credencial da turma.'
-  },
-  {
-    id: 2,
-    nome: 'Laboratório de Química',
-    bloco: 'Bloco C',
-    capacidade: 24,
-    tipo: 'Química',
-    equipamentos: 'Bancadas, ventilação, microscópio',
-    status: 'Em uso',
-    observacoes: 'Reservado para aulas práticas.'
-  }
-];
-
-function getLabs() {
-  try {
-    const labs = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return Array.isArray(labs) && labs.length ? labs : defaultLabs;
-  } catch {
-    return defaultLabs;
-  }
-}
-
-function saveLabs(labs) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(labs));
-  window.dispatchEvent(new Event('campusSyncDataChanged'));
 }
 
 function getFilteredLabs() {
@@ -127,7 +74,6 @@ function clearEditMode() {
   document.getElementById('labIdEdit').value = '';
   setLabPreview('');
   if (labFotoInput) labFotoInput.value = '';
-  if (editBanner) editBanner.hidden = true;
   if (saveLabBtn) saveLabBtn.textContent = 'Salvar laboratório';
 }
 
@@ -141,7 +87,6 @@ function startEdit(lab) {
   document.getElementById('labStatus').value = lab.status;
   document.getElementById('labObs').value = lab.observacoes || '';
   setLabPreview(lab.foto || '');
-  if (editBanner) editBanner.hidden = false;
   if (saveLabBtn) saveLabBtn.textContent = 'Atualizar laboratório';
   document.getElementById('labNome').focus();
   labForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -172,18 +117,18 @@ function renderLabs() {
       (lab) => `
         <article class="coord-lab-item">
           <div style="display:flex; gap: 1rem; flex-wrap: wrap; align-items:flex-start;">
-            ${lab.foto ? `<img class="lab-photo" src="${lab.foto}" alt="${lab.nome}" />` : '<div class="lab-photo" style="display:flex;align-items:center;justify-content:center;color:#3d6db5;font-size:0.8rem;">Foto</div>'}
+            ${lab.foto ? `<img class="lab-photo" src="${escapeHtml(lab.foto)}" alt="${escapeHtml(lab.nome)}" />` : '<div class="lab-photo" style="display:flex;align-items:center;justify-content:center;color:#3d6db5;font-size:0.8rem;">Foto</div>'}
             <div>
-              <h4>${lab.nome}</h4>
-              <p>Bloco: ${lab.bloco}</p>
-              <p>Capacidade: ${lab.capacidade} alunos</p>
-              <p>Tipo: ${lab.tipo}</p>
-              <p>Equipamentos: ${lab.equipamentos}</p>
-              <p>Observações: ${lab.observacoes || 'Sem observações'}</p>
+              <h4>${escapeHtml(lab.nome)}</h4>
+              <p>Bloco: ${escapeHtml(lab.bloco)}</p>
+              <p>Capacidade: ${escapeHtml(lab.capacidade)} alunos</p>
+              <p>Tipo: ${escapeHtml(lab.tipo)}</p>
+              <p>Equipamentos: ${escapeHtml(lab.equipamentos)}</p>
+              <p>Observações: ${escapeHtml(lab.observacoes || 'Sem observações')}</p>
             </div>
           </div>
           <div class="coord-lab-actions">
-            <span class="status-badge ${lab.status === 'Em uso' ? 'warning-badge' : ''}">${lab.status}</span>
+            <span class="status-badge ${lab.status === 'Em uso' ? 'warning-badge' : ''}">${escapeHtml(lab.status)}</span>
             <div class="mini-actions">
               <button type="button" class="secondary-btn edit-btn" data-id="${lab.id}">Editar</button>
               <button type="button" class="delete-btn" data-id="${lab.id}">Excluir</button>
@@ -266,14 +211,9 @@ resetBtn.addEventListener('click', () => {
 cancelEditBtn.addEventListener('click', () => {
   clearEditMode();
 });
-cancelEditTop?.addEventListener('click', clearEditMode);
 
 if (logoutBtn) {
-  logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('usuarioLogado');
-    sessionStorage.removeItem('usuarioLogado');
-    window.location.replace('../Pagina_login/index.html');
-  });
+  logoutBtn.addEventListener('click', logout);
 }
 
 renderLabs();

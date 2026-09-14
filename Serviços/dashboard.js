@@ -16,6 +16,7 @@
   const eventsStorageKey = 'compromissosCampusSync';
   const roomReservationsKey = 'reservasSalasCampusSync';
   const resourcesStorageKey = 'recursosCampusSync';
+  const attendanceStorageKey = 'chamadasCampusSync';
   let weekOffset = 0;
 
   const profileRoutes = { aluno: '../Pag_aluno/index.html', professor: '../Pag_Prof/index.html', coordenador: '../Pag_Coordenador/index.html', admin: '../Pag_Adm/index.html' };
@@ -322,6 +323,337 @@
     notificationPanel.innerHTML = `<h3>Notificações</h3>${(notifications[profile] || []).map((item) => `<div class="notification-item"><span>●</span><div><strong>${item[0]}</strong>${item[1]}</div></div>`).join('')}`;
   }
 
+  function getAttendanceStudents() {
+    try {
+      const savedUsers = JSON.parse(localStorage.getItem('usuariosCampusSync')) || [];
+      const alunos = Array.isArray(savedUsers) ? savedUsers.filter((user) => user.perfil === 'aluno') : [];
+      if (alunos.length) {
+        return alunos.map((student) => ({
+          usuario: student.usuario,
+          nome: student.nome || student.usuario,
+          status: 'Presente'
+        }));
+      }
+    } catch {
+      // ignora e usa lista padrão
+    }
+
+    return [
+      { usuario: 'ana.silva', nome: 'Ana Silva', status: 'Presente' },
+      { usuario: 'bruno.souza', nome: 'Bruno Souza', status: 'Presente' },
+      { usuario: 'carlos.menezes', nome: 'Carlos Menezes', status: 'Presente' },
+      { usuario: 'daniela.oliveira', nome: 'Daniela Oliveira', status: 'Presente' },
+      { usuario: 'eduardo.ferreira', nome: 'Eduardo Ferreira', status: 'Presente' },
+      { usuario: 'fernanda.rios', nome: 'Fernanda Rios', status: 'Presente' }
+    ];
+  }
+
+  function getAttendanceRecords() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(attendanceStorageKey));
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveAttendanceRecords(records) {
+    localStorage.setItem(attendanceStorageKey, JSON.stringify(records));
+  }
+
+  function getAvailableRooms() {
+    const resources = getSharedResources();
+    const labs = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem('laboratoriosCampusSync')) || [];
+        return Array.isArray(saved) ? saved.map((lab) => lab.nome).filter(Boolean) : [];
+      } catch {
+        return [];
+      }
+    })();
+
+    return [...resources.rooms, ...resources.auditoriums, ...labs];
+  }
+
+  function getAttendanceOptions() {
+    return {
+      turmas: ['ADS - 1º Semestre', 'ADS - 2º Semestre', 'ADS - 3º Semestre', 'Sistemas de Informação - 1º Semestre', 'Sistemas de Informação - 2º Semestre'],
+      disciplinas: ['Banco de Dados', 'Engenharia de Software', 'Física Aplicada', 'Matemática Discreta', 'Sistemas Distribuídos', 'Projeto Integrador'],
+      locais: ['Bloco A', 'Bloco B', 'Bloco C', 'Bloco D', 'Laboratório de Informática', 'Laboratório de Redes', 'Auditório principal']
+    };
+  }
+
+  function renderAttendancePanel() {
+    if (!['professor', 'coordenador', 'admin'].includes(profile)) return;
+
+    if (document.getElementById('attendancePanel')) {
+      renderAttendanceList();
+      return;
+    }
+
+    const panel = document.createElement('section');
+    panel.id = 'attendancePanel';
+    panel.className = 'attendance-panel';
+    const canEditAttendance = profile === 'professor';
+    panel.innerHTML = `
+      <div class="attendance-header">
+        <div>
+          <span class="card-label">Lista de chamada</span>
+          <h2>${canEditAttendance ? 'Controle de presença' : 'Chamadas registradas'}</h2>
+          <p>${canEditAttendance ? 'Registre a presença da turma e finalize para guardar no histórico.' : 'Visualize as chamadas finalizadas pelos professores.'}</p>
+        </div>
+        ${canEditAttendance ? '<button class="primary-btn" type="button" id="startAttendanceButton">Iniciar chamada</button>' : ''}
+      </div>
+
+      ${canEditAttendance ? `<form id="attendanceForm" class="attendance-form" hidden>
+        <input type="hidden" id="attendanceId" name="attendanceId" />
+        <label>Data<input id="attendanceDate" name="attendanceDate" type="date" required /></label>
+        <label>Turma<select id="attendanceClass" name="attendanceClass" required></select></label>
+        <label>Disciplina<select id="attendanceSubject" name="attendanceSubject" required></select></label>
+        <label>Sala<select id="attendanceRoom" name="attendanceRoom" required></select></label>
+        <label>Local<select id="attendanceLocation" name="attendanceLocation" required></select></label>
+        <div class="attendance-student-field">
+          <span class="attendance-field-label">Alunos da turma</span>
+          <div id="attendanceStudentList" class="attendance-student-list"></div>
+        </div>
+        <div class="attendance-form-actions">
+          <button class="primary-btn" type="submit" id="saveAttendanceBtn">Finalizar chamada</button>
+          <button class="secondary-btn" type="button" id="cancelAttendanceEdit">Cancelar</button>
+        </div>
+      </form>` : ''}
+
+      <div class="attendance-history-heading">
+        <h3>Histórico de chamadas</h3>
+        <span>As chamadas ficam minimizadas após o encerramento.</span>
+      </div>
+      <div id="attendanceRecordList" class="attendance-record-list"></div>
+    `;
+
+    const target = document.querySelector('.calendar-panel') || document.querySelector('.lab-visual-panel') || document.querySelector('.insight-panel');
+    if (target && target.parentNode) target.parentNode.insertBefore(panel, target.nextSibling);
+
+    if (!canEditAttendance) {
+      renderAttendanceList();
+      return;
+    }
+
+    const roomSelect = document.getElementById('attendanceRoom');
+    const attendanceOptions = getAttendanceOptions();
+    const fillSelect = (selectId, placeholder, values) => {
+      const select = document.getElementById(selectId);
+      select.innerHTML = [`<option value="">${placeholder}</option>`, ...values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`)].join('');
+      return select;
+    };
+    const classSelect = fillSelect('attendanceClass', 'Selecione a turma', attendanceOptions.turmas);
+    const subjectSelect = fillSelect('attendanceSubject', 'Selecione a disciplina', attendanceOptions.disciplinas);
+    fillSelect('attendanceRoom', 'Selecione a sala', getAvailableRooms());
+    const locationSelect = fillSelect('attendanceLocation', 'Selecione o local', attendanceOptions.locais);
+    classSelect.value = 'ADS - 3º Semestre';
+    subjectSelect.value = 'Sistemas Distribuídos';
+    roomSelect.value = 'Sala 204';
+    locationSelect.value = 'Bloco B';
+    document.getElementById('attendanceDate').value = formatDateInput(new Date());
+
+    document.getElementById('startAttendanceButton').addEventListener('click', () => {
+      resetAttendanceForm();
+      document.getElementById('attendanceForm').hidden = false;
+      document.getElementById('startAttendanceButton').hidden = true;
+      document.getElementById('attendanceDate').focus();
+    });
+
+    document.getElementById('attendanceForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const recordId = formData.get('attendanceId')?.toString();
+      const attendanceDate = formData.get('attendanceDate')?.toString();
+      const turma = formData.get('attendanceClass')?.toString().trim();
+      const disciplina = formData.get('attendanceSubject')?.toString().trim();
+      const sala = formData.get('attendanceRoom')?.toString().trim();
+      const local = formData.get('attendanceLocation')?.toString().trim();
+      const alunos = [...document.querySelectorAll('#attendanceStudentList select[data-user]')].map((select) => ({
+        usuario: select.dataset.user,
+        nome: select.dataset.name,
+        status: select.value
+      }));
+
+      if (!attendanceDate || !turma || !disciplina || !sala || !local || !alunos.length) return;
+
+      const records = getAttendanceRecords();
+
+      if (recordId) {
+        const index = records.findIndex((record) => record.id === recordId);
+        if (index !== -1) {
+          records[index] = { ...records[index], date: attendanceDate, turma, disciplina, sala, local, alunos };
+        }
+      } else {
+        records.unshift({ id: `attendance-${Date.now()}`, date: attendanceDate, turma, disciplina, sala, local, alunos });
+      }
+
+      saveAttendanceRecords(records);
+      form.reset();
+      document.getElementById('attendanceId').value = '';
+      document.getElementById('attendanceDate').value = formatDateInput(new Date());
+      document.getElementById('attendanceClass').value = 'ADS - 3º Semestre';
+      document.getElementById('attendanceSubject').value = 'Sistemas Distribuídos';
+      document.getElementById('attendanceLocation').value = 'Bloco B';
+      roomSelect.value = 'Sala 204';
+      document.getElementById('saveAttendanceBtn').textContent = 'Finalizar chamada';
+      document.getElementById('attendanceForm').hidden = true;
+      document.getElementById('startAttendanceButton').hidden = false;
+      renderAttendanceList();
+    });
+
+    document.getElementById('cancelAttendanceEdit').addEventListener('click', () => {
+      document.getElementById('attendanceForm').reset();
+      document.getElementById('attendanceId').value = '';
+      document.getElementById('attendanceDate').value = formatDateInput(new Date());
+      document.getElementById('attendanceClass').value = 'ADS - 3º Semestre';
+      document.getElementById('attendanceSubject').value = 'Sistemas Distribuídos';
+      document.getElementById('attendanceLocation').value = 'Bloco B';
+      roomSelect.value = 'Sala 204';
+      document.getElementById('saveAttendanceBtn').textContent = 'Finalizar chamada';
+      document.getElementById('attendanceForm').hidden = true;
+      document.getElementById('startAttendanceButton').hidden = false;
+    });
+
+    function resetAttendanceForm(record = null) {
+      const form = document.getElementById('attendanceForm');
+      form.reset();
+      document.getElementById('attendanceId').value = record?.id || '';
+      document.getElementById('attendanceDate').value = record?.date || formatDateInput(new Date());
+      ensureAttendanceOption('attendanceClass', record?.turma || 'ADS - 3º Semestre');
+      ensureAttendanceOption('attendanceSubject', record?.disciplina || 'Sistemas Distribuídos');
+      ensureAttendanceOption('attendanceLocation', record?.local || 'Bloco B');
+      document.getElementById('attendanceClass').value = record?.turma || 'ADS - 3º Semestre';
+      document.getElementById('attendanceSubject').value = record?.disciplina || 'Sistemas Distribuídos';
+      document.getElementById('attendanceLocation').value = record?.local || 'Bloco B';
+      ensureAttendanceOption('attendanceRoom', record?.sala || 'Sala 204');
+      roomSelect.value = record?.sala || 'Sala 204';
+      document.getElementById('saveAttendanceBtn').textContent = record ? 'Finalizar alterações' : 'Finalizar chamada';
+      renderAttendanceStudents(record?.alunos || getAttendanceStudents());
+    }
+
+    function ensureAttendanceOption(selectId, value) {
+      const select = document.getElementById(selectId);
+      if (!value || Array.from(select.options).some((option) => option.value === value)) return;
+      select.add(new Option(value, value));
+    }
+
+    function renderAttendanceStudents(students) {
+      const studentList = document.getElementById('attendanceStudentList');
+      if (!studentList) return;
+      studentList.innerHTML = students.length ? students.map((student) => `
+        <label class="attendance-student-row">
+          <span><strong>${escapeHtml(student.nome)}</strong><small>${escapeHtml(student.usuario)}</small></span>
+          <select data-user="${escapeHtml(student.usuario)}" data-name="${escapeHtml(student.nome)}" aria-label="Presença de ${escapeHtml(student.nome)}">
+            ${['Presente', 'Ausente', 'Atrasado', 'Justificado'].map((status) => `<option value="${status}" ${student.status === status ? 'selected' : ''}>${status}</option>`).join('')}
+          </select>
+        </label>
+      `).join('') : '<p class="empty-state">Nenhum aluno cadastrado para esta turma.</p>';
+    }
+
+    renderAttendanceList();
+  }
+
+  function renderAttendanceList() {
+    const list = document.getElementById('attendanceRecordList');
+    if (!list) return;
+
+    const records = getAttendanceRecords();
+    const canEditAttendance = profile === 'professor';
+
+    list.innerHTML = records.length ? records.map((record) => `
+      <details class="attendance-record-card">
+        <summary class="attendance-record-head">
+          <div>
+            <strong>${escapeHtml(record.turma)}</strong>
+            <small>${new Date(`${record.date}T12:00:00`).toLocaleDateString('pt-BR')} · ${escapeHtml(record.disciplina)}</small>
+          </div>
+          <div class="attendance-record-meta">
+            <span>${escapeHtml(record.sala)}</span>
+            <span>${escapeHtml(record.local)}</span>
+          </div>
+        </summary>
+        <div class="attendance-record-body">
+          <div class="attendance-summary" aria-label="Resumo da presença">
+            <span><strong>${record.alunos.length}</strong> alunos</span>
+            <span><strong>${record.alunos.filter((student) => student.status === 'Presente').length}</strong> presentes</span>
+            <span><strong>${record.alunos.filter((student) => student.status === 'Ausente').length}</strong> ausentes</span>
+          </div>
+          ${canEditAttendance ? `<div class="attendance-actions">
+            <button type="button" class="secondary-btn" data-action="edit-attendance" data-record-id="${escapeHtml(record.id)}">Editar</button>
+            <button type="button" class="delete-btn" data-action="delete-attendance" data-record-id="${escapeHtml(record.id)}">Excluir</button>
+          </div>` : ''}
+        <table class="attendance-table">
+          <thead>
+            <tr>
+              <th>Aluno</th>
+              <th>Presença</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${record.alunos.map((student) => `
+              <tr>
+                <td>${escapeHtml(student.nome)}</td>
+                <td>
+                  ${canEditAttendance ? `<select class="attendance-status-select" data-record-id="${escapeHtml(record.id)}" data-user="${escapeHtml(student.usuario)}">
+                    ${['Presente', 'Ausente', 'Atrasado', 'Justificado'].map((status) => `<option value="${status}" ${student.status === status ? 'selected' : ''}>${status}</option>`).join('')}
+                  </select>` : `<span class="attendance-status-text">${escapeHtml(student.status)}</span>`}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        </div>
+      </details>
+    `).join('') : '<div class="empty-state">Nenhuma chamada registrada.</div>';
+
+    list.querySelectorAll('[data-action="edit-attendance"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const recordId = button.dataset.recordId;
+        const record = getAttendanceRecords().find((item) => item.id === recordId);
+        if (!record) return;
+
+        const form = document.getElementById('attendanceForm');
+        const roomSelect = document.getElementById('attendanceRoom');
+        if (!Array.from(roomSelect.options).some((option) => option.value === record.sala)) {
+          const option = new Option(record.sala, record.sala);
+          roomSelect.add(option);
+        }
+        resetAttendanceForm(record);
+        document.getElementById('attendanceForm').hidden = false;
+        document.getElementById('startAttendanceButton').hidden = true;
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    list.querySelectorAll('[data-action="delete-attendance"]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const recordId = button.dataset.recordId;
+        if (!window.confirm('Excluir esta lista de chamada? Esta ação não pode ser desfeita.')) return;
+        const records = getAttendanceRecords().filter((record) => record.id !== recordId);
+        saveAttendanceRecords(records);
+        renderAttendanceList();
+      });
+    });
+
+    list.querySelectorAll('.attendance-status-select').forEach((select) => {
+      select.addEventListener('change', (event) => {
+        const recordId = event.currentTarget.dataset.recordId;
+        const user = event.currentTarget.dataset.user;
+        const status = event.currentTarget.value;
+        const records = getAttendanceRecords();
+        const record = records.find((item) => item.id === recordId);
+        if (!record) return;
+        const student = record.alunos.find((item) => item.usuario === user);
+        if (!student) return;
+        student.status = status;
+        saveAttendanceRecords(records);
+      });
+    });
+  }
+
   function exportSchedule() {
     const events = getVisibleEvents();
     const profileNames = { aluno: 'Aluno', professor: 'Professor', coordenador: 'Coordenador', admin: 'Administração' };
@@ -414,6 +746,17 @@
     const labRows = labs.length ? labs.map((item) => `<tr><td>${escapeHtml(item.nome)}</td><td>${escapeHtml(item.bloco)}</td><td>${escapeHtml(item.tipo)}</td><td>${escapeHtml(item.capacidade)}</td><td><span class="tag">${escapeHtml(item.status)}</span></td></tr>`).join('') : '<tr><td colspan="5">Nenhum laboratório cadastrado.</td></tr>';
     const resourceRows = [...resources.rooms.map((name) => ['Sala', name]), ...resources.auditoriums.map((name) => ['Auditório', name]), ...labs.map((lab) => ['Laboratório', lab.nome])].map((item) => `<tr><td>${escapeHtml(item[0])}</td><td>${escapeHtml(item[1])}</td><td>Disponível na base compartilhada</td></tr>`).join('');
     const reservationRows = reservations.length ? reservations.map((item) => `<tr><td>${escapeHtml(item.room)}</td><td>${new Date(`${item.date}T12:00:00`).toLocaleDateString('pt-BR')}</td><td>${escapeHtml(item.start)} às ${escapeHtml(item.end)}</td><td>${escapeHtml(item.owner)}</td></tr>`).join('') : '<tr><td colspan="4">Nenhuma reserva registrada.</td></tr>';
+    const attendanceRecords = getAttendanceRecords();
+    const attendanceRows = attendanceRecords.length ? attendanceRecords.map((record) => `
+      <tr>
+        <td>${escapeHtml(record.date)}</td>
+        <td>${escapeHtml(record.turma)}</td>
+        <td>${escapeHtml(record.disciplina)}</td>
+        <td>${escapeHtml(record.sala)}</td>
+        <td>${escapeHtml(record.local)}</td>
+        <td>${record.alunos.map((student) => `${escapeHtml(student.nome)}: ${escapeHtml(student.status)}`).join('<br>')}</td>
+      </tr>
+    `).join('') : '<tr><td colspan="6">Nenhuma chamada registrada.</td></tr>';
     const reportWindow = window.open('', '_blank', 'width=1100,height=800');
     if (!reportWindow) {
       window.alert('Permita pop-ups para gerar o relatório em PDF.');
@@ -426,6 +769,7 @@
       ${type === 'campus' || type === 'users' ? `<section class="section"><h2>Usuários e acessos</h2><table><thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Status</th><th>Último acesso</th></tr></thead><tbody>${userRows}</tbody></table></section>` : ''}
       ${type === 'campus' || type === 'labs' ? `<section class="section"><h2>Laboratórios e recursos</h2><table><thead><tr><th>Laboratório</th><th>Bloco</th><th>Tipo</th><th>Capacidade</th><th>Status</th></tr></thead><tbody>${labRows}</tbody></table><h3>Base compartilhada</h3><table><thead><tr><th>Tipo</th><th>Nome</th><th>Situação</th></tr></thead><tbody>${resourceRows}</tbody></table></section>` : ''}
       ${type === 'campus' ? `<section class="section"><h2>Reservas de salas</h2><table><thead><tr><th>Espaço</th><th>Data</th><th>Horário</th><th>Responsável</th></tr></thead><tbody>${reservationRows}</tbody></table></section>` : ''}
+      ${type === 'campus' ? `<section class="section"><h2>Lista de chamada</h2><table><thead><tr><th>Data</th><th>Turma</th><th>Disciplina</th><th>Sala</th><th>Local</th><th>Alunos</th></tr></thead><tbody>${attendanceRows}</tbody></table></section>` : ''}
       <section class="section"><h2>Agenda do perfil</h2><table><thead><tr><th>Dia</th><th>Horário</th><th>Atividade</th><th>Local</th></tr></thead><tbody>${scheduleRows}</tbody></table></section><div class="footer">CampusSync · Sistema de Ensalamento Universitário · Relatório gerado automaticamente</div></main></body></html>`);
     reportWindow.document.close();
     reportWindow.focus();
@@ -451,7 +795,11 @@
   });
   document.getElementById('exportUsersDatabase')?.addEventListener('click', () => {
     const link = document.createElement('a');
-    const safeUsers = getUsers().map(({ senha, ...user }) => user);
+    const safeUsers = getUsers().map(({ senha, passwordHash, ...user }) => ({
+      ...user,
+      status: user.status || 'Ativo',
+      acesso: user.acesso || 'Ainda não acessou'
+    }));
     link.href = URL.createObjectURL(new Blob([JSON.stringify(safeUsers, null, 2)], { type: 'application/json;charset=utf-8' }));
     link.download = `base-usuarios-campussync-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
@@ -474,11 +822,13 @@
   renderCalendar();
   renderNotifications();
   renderUsers();
+  renderAttendancePanel();
   setupRoomReservations();
   setupSharedResources();
   window.addEventListener('campusSyncDataChanged', () => {
     renderSharedResources();
     renderRoomReservations();
+    renderAttendancePanel();
   });
   window.addEventListener('storage', (event) => {
     if ([resourcesStorageKey, 'laboratoriosCampusSync', roomReservationsKey].includes(event.key)) {

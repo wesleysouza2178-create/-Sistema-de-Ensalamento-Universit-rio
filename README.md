@@ -37,9 +37,14 @@ Projeto web de ensalamento universitário para centralizar horários, salas, lab
 ## Como executar
 
 1. Abra a pasta do projeto no VS Code.
-2. Acesse `index.html` para abrir a página inicial.
-3. Entre em `Paginas/Pagina_login/index.html` ou use o botão de login da página inicial.
-4. Para uma experiência mais consistente com `localStorage`, use um servidor estático local.
+2. Inicie um servidor estático local no diretório raiz do projeto.
+   - Exemplo com Python: `python -m http.server 8000`
+   - Ou use a extensão Live Server do VS Code.
+3. Acesse `http://localhost:8000` para abrir a página inicial.
+4. Entre em `Paginas/Pagina_login/index.html` ou use o botão de login da página inicial.
+5. Faça login com um dos usuários de demonstração abaixo.
+
+> O uso de um servidor local ajuda a manter a experiência mais estável com `localStorage` e sincronização entre abas.
 
 ## Credenciais de demonstração
 
@@ -52,9 +57,17 @@ Projeto web de ensalamento universitário para centralizar horários, salas, lab
 
 O protótipo usa `localStorage` como banco local do navegador. Os dados compartilhados incluem usuários, laboratórios, salas, auditórios, compromissos e reservas. As alterações aparecem em outras páginas abertas por meio dos eventos de sincronização do navegador.
 
-O Admin pode exportar a base de usuários em JSON e os painéis de Administração e Coordenação podem gerar relatórios em PDF. A recuperação de senha funciona localmente com usuário e e-mail, mas não envia mensagens reais.
+O administrador pode exportar a base de usuários em JSON e os painéis de administração e coordenação podem gerar relatórios em PDF. A recuperação de senha funciona localmente com usuário e e-mail, mas não envia mensagens reais.
 
 Para produção, substitua o armazenamento local por uma API com banco de dados, autenticação no servidor, hash seguro com salt, tokens de recuperação com expiração, envio real de e-mail, controle de permissões no backend e auditoria de alterações.
+
+## Tecnologias e estrutura
+
+- HTML5 para estrutura das páginas
+- CSS3 para layout responsivo e visual do sistema
+- JavaScript puro para regras de negócio, persistência e dinamicidade
+- `localStorage` para armazenamento local do navegador
+- OpenStreetMap integrado na página inicial para exibição do campus
 
 ## Recursos dos painéis
 

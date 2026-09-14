@@ -114,7 +114,8 @@ iframe {
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 24px rgba(29, 94, 168, 0.26);
 }
 
 .btn-secondary {
@@ -122,6 +123,11 @@ iframe {
   color: var(--azul-escuro);
   border-color: rgba(13, 59, 102, 0.15);
   padding: 0.85rem 1.4rem;
+}
+
+.btn-secondary:hover {
+  background: var(--azul-claro);
+  border-color: rgba(29, 94, 168, 0.2);
 }
 
 .hero {
@@ -587,7 +593,9 @@ iframe {
 }
 
 .dashboard-body {
-  background: #f4f8ff;
+  background:
+    radial-gradient(circle at top left, rgba(29, 94, 168, 0.10), transparent 32%),
+    linear-gradient(180deg, #f4f8ff 0%, #edf5ff 100%);
   color: var(--texto);
 }
 
@@ -595,20 +603,50 @@ iframe {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 240px 1fr;
+  gap: 1.25rem;
+  padding: 1rem;
 }
 
 .dashboard-sidebar {
   background: linear-gradient(180deg, var(--azul-escuro), #123a68);
-.panel-helper { color: var(--cinza-700); font-size: .84rem; margin-top: .25rem; }
-.edit-mode-banner { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .65rem .8rem; border-radius: .65rem; background: #fff0d6; color: #805000; font-size: .8rem; font-weight: 700; }
-.edit-mode-banner button { border: 0; background: transparent; color: #805000; text-decoration: underline; font: inherit; font-size: .75rem; cursor: pointer; }
-.form-feedback { color: var(--success); font-size: .8rem; font-weight: 700; align-self: center; }
-.form-feedback:empty { display: none; }
   color: var(--branco);
   padding: 1.5rem 1rem;
   position: relative;
+  border-radius: 1.5rem;
+  box-shadow: 0 22px 48px rgba(13, 59, 102, 0.16);
+  min-height: calc(100vh - 2rem);
   transition: transform 0.25s ease;
 }
+
+.panel-helper { color: var(--cinza-700); font-size: .84rem; margin-top: .25rem; }
+.edit-mode-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  flex-wrap: wrap;
+  padding: .65rem .8rem;
+  border-radius: .65rem;
+  background: #fff0d6;
+  color: #805000;
+  font-size: .8rem;
+  font-weight: 700;
+}
+.edit-mode-banner span {
+  white-space: nowrap;
+}
+.edit-mode-banner button {
+  border: 0;
+  background: transparent;
+  color: #805000;
+  text-decoration: underline;
+  font: inherit;
+  font-size: .75rem;
+  cursor: pointer;
+  margin-left: .35rem;
+}
+.form-feedback { color: var(--success); font-size: .8rem; font-weight: 700; align-self: center; }
+.form-feedback:empty { display: none; }
 
 .dashboard-brand {
   display: flex;
@@ -659,9 +697,13 @@ iframe {
 }
 
 .dashboard-main {
-  padding: clamp(1rem, 3vw, 2.5rem);
+  padding: clamp(1rem, 2vw, 2rem);
   min-width: 0;
   max-width: 1600px;
+  background: rgba(255, 255, 255, 0.28);
+  border: 1px solid rgba(13, 59, 102, 0.04);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(4px);
 }
 
 .dashboard-topbar {
@@ -670,6 +712,8 @@ iframe {
   gap: 1rem;
   align-items: center;
   margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(13, 59, 102, 0.08);
 }
 
 .dashboard-topbar h1 {
@@ -690,7 +734,18 @@ iframe {
 .icon-btn { width: 42px; height: 42px; border: 1px solid rgba(13,59,102,.1); border-radius: .8rem; background: #fff; color: var(--azul-escuro); cursor: pointer; font-size: 1.1rem; }
 .icon-btn:hover { background: var(--azul-claro); }
 .dashboard-welcome { color: var(--cinza-700); margin-top: .25rem; }
-.dashboard-toolbar { display: flex; gap: .75rem; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.dashboard-toolbar {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  padding: .85rem 1rem;
+  border: 1px solid rgba(13, 59, 102, 0.08);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 10px 24px rgba(13, 59, 102, 0.04);
+}
 .dashboard-search { flex: 1 1 240px; border: 1px solid rgba(13,59,102,.1); border-radius: .8rem; background: #fff; padding: .75rem 1rem; font: inherit; }
 .dashboard-search:focus { outline: 3px solid rgba(29,94,168,.14); border-color: var(--azul-medio); }
 .notification-panel { position: fixed; z-index: 30; top: 5rem; right: 1.25rem; width: min(360px, calc(100% - 2rem)); background: #fff; border: 1px solid rgba(13,59,102,.1); border-radius: 1rem; box-shadow: 0 18px 45px rgba(13,59,102,.18); padding: 1rem; display: none; }
@@ -744,6 +799,69 @@ body.theme-dim .calendar-event-form, body.theme-dim .calendar-event-form input, 
 .room-reservation-item span, .room-reservation-item small { color: var(--cinza-700); font-size: .76rem; }
 .delete-room-reservation { border: 0; border-radius: .55rem; padding: .45rem .65rem; background: rgba(180,35,24,.09); color: #b42318; font: inherit; font-size: .74rem; font-weight: 700; cursor: pointer; }
 body.theme-dim .room-booking-panel, body.theme-dim .room-booking-form select, body.theme-dim .room-booking-form input, body.theme-dim .room-reservation-item { background: #17324f; color: #eef5ff; }
+
+.attendance-panel { margin-top: 1.5rem; padding: 1.35rem; background: #fff; border: 1px solid rgba(13,59,102,.06); border-radius: 1.3rem; box-shadow: 0 14px 28px rgba(13,59,102,.06); }
+.attendance-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.attendance-header h2 { color: var(--azul-escuro); margin-top: .1rem; }
+.attendance-form { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .8rem; align-items: end; padding: .9rem; border: 1px solid rgba(13,59,102,.08); border-radius: .9rem; background: #f7faff; }
+.attendance-form[hidden] { display: none; }
+.attendance-form label { display: grid; gap: .35rem; color: var(--azul-escuro); font-size: .75rem; font-weight: 700; }
+.attendance-form input, .attendance-form select { width: 100%; border: 1px solid rgba(13,59,102,.12); border-radius: .7rem; padding: .7rem .75rem; background: #fff; font: inherit; }
+.attendance-student-field { grid-column: 1 / -1; display: grid; gap: .5rem; }
+.attendance-field-label { color: var(--azul-escuro); font-size: .75rem; font-weight: 700; }
+.attendance-student-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; max-height: 18rem; overflow-y: auto; padding: .65rem; border: 1px solid rgba(13,59,102,.08); border-radius: .75rem; background: #fff; }
+.attendance-student-row { display: flex !important; align-items: center; justify-content: space-between; gap: .75rem; padding: .6rem .7rem; border: 1px solid rgba(13,59,102,.07); border-radius: .65rem; background: #f8fbff; }
+.attendance-student-row span { display: grid; gap: .1rem; min-width: 0; }
+.attendance-student-row strong { overflow: hidden; color: var(--azul-escuro); font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+.attendance-student-row small { color: var(--cinza-700); font-size: .68rem; }
+.attendance-student-row select { width: auto; min-width: 8rem; padding: .5rem .55rem; }
+.attendance-form-actions { display: flex; align-items: end; justify-content: flex-end; }
+.attendance-form-actions { gap: .55rem; }
+.attendance-history-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-top: 1.35rem; }
+.attendance-history-heading h3 { color: var(--azul-escuro); font-size: 1rem; }
+.attendance-history-heading span { color: var(--cinza-700); font-size: .78rem; }
+.attendance-record-list { display: grid; gap: 1rem; margin-top: 1rem; }
+.attendance-record-card { padding: 1rem; border: 1px solid rgba(13,59,102,.08); border-radius: 1rem; background: #f8fbff; }
+.attendance-record-card summary { list-style: none; cursor: pointer; }
+.attendance-record-card summary::-webkit-details-marker { display: none; }
+.attendance-record-card summary::after { content: '+'; display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: rgba(29,94,168,.08); color: var(--azul-medio); font-weight: 800; }
+.attendance-record-card[open] summary::after { content: '-'; }
+.attendance-record-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.attendance-record-head strong { display: block; color: var(--azul-escuro); }
+.attendance-record-head small { color: var(--cinza-700); }
+.attendance-record-meta { display: flex; gap: .5rem; flex-wrap: wrap; }
+.attendance-record-meta span { display: inline-flex; align-items: center; padding: .3rem .6rem; border-radius: 999px; background: rgba(29,94,168,.08); color: var(--azul-escuro); font-size: .72rem; font-weight: 700; }
+.attendance-record-body { margin-top: .9rem; }
+.attendance-summary { display: flex; gap: .55rem; flex-wrap: wrap; margin: .85rem 0; }
+.attendance-summary span { padding: .35rem .6rem; border-radius: .55rem; background: #fff; color: var(--cinza-700); font-size: .72rem; }
+.attendance-summary strong { color: var(--azul-medio); }
+.attendance-actions { display: flex; gap: .6rem; justify-content: flex-end; margin-bottom: .75rem; }
+.attendance-table { width: 100%; border-collapse: collapse; }
+.attendance-table th, .attendance-table td { text-align: left; padding: .7rem .6rem; border-bottom: 1px solid rgba(13,59,102,.08); color: var(--cinza-700); }
+.attendance-table th { color: var(--azul-escuro); font-size: .74rem; text-transform: uppercase; }
+.attendance-status-select { width: 100%; min-width: 120px; border: 1px solid rgba(13,59,102,.12); border-radius: .6rem; padding: .55rem .65rem; background: #fff; font: inherit; }
+.attendance-status-text { font-weight: 700; color: var(--azul-escuro); }
+body.theme-dim .attendance-panel, body.theme-dim .attendance-form, body.theme-dim .attendance-record-card, body.theme-dim .attendance-form input, body.theme-dim .attendance-form select, body.theme-dim .attendance-status-select { background: #17324f; color: #eef5ff; border-color: rgba(255,255,255,.1); }
+body.theme-dim .attendance-summary span { background: #1d3b5c; color: #d5e1ed; }
+body.theme-dim .attendance-history-heading span, body.theme-dim .attendance-record-head small { color: #d5e1ed; }
+body.theme-dim .attendance-student-list, body.theme-dim .attendance-student-row { background: #1d3b5c; border-color: rgba(255,255,255,.1); }
+
+@media (max-width: 900px) {
+  .attendance-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .attendance-form-actions { justify-content: stretch; }
+  .attendance-form-actions .primary-btn { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .attendance-panel { padding: 1rem; border-radius: 1rem; }
+  .attendance-form { grid-template-columns: 1fr; }
+  .attendance-student-list { grid-template-columns: 1fr; }
+  .attendance-student-row select { min-width: 7rem; }
+  .attendance-actions { justify-content: stretch; }
+  .attendance-actions button { flex: 1; }
+  .attendance-table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
 .shared-resources-panel { margin-top: 1.5rem; padding: 1.35rem; background: #fff; border: 1px solid rgba(13,59,102,.06); border-radius: 1.3rem; box-shadow: 0 14px 28px rgba(13,59,102,.06); }
 .shared-resources-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
 .shared-resources-header h2 { color: var(--azul-escuro); margin-top: .1rem; }
@@ -801,17 +919,29 @@ body.theme-dim .calendar-day, body.theme-dim .insight-list li { background: #1d3
 }
 
 .dashboard-card {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
   border-radius: 1.3rem;
   padding: 1.35rem;
   box-shadow: 0 14px 26px rgba(13, 59, 102, 0.06);
   border: 1px solid rgba(13, 59, 102, 0.06);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.dashboard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--azul-medio), #8ec5ff);
 }
 
 .dashboard-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: 0 18px 28px rgba(13, 59, 102, 0.08);
+  border-color: rgba(29, 94, 168, 0.18);
 }
 
 .card-label {
