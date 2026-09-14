@@ -6,7 +6,7 @@
     <title>Painel da Administração | CampusSync</title>
     <link rel="stylesheet" href="../../Css_geral/global.css" />
   </head>
-  <body class="dashboard-body">
+  <body class="dashboard-body" data-profile="admin">
     <div class="dashboard-shell">
       <aside class="dashboard-sidebar" id="sidebarAdmin">
         <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Abrir menu">☰</button>
@@ -26,9 +26,10 @@
 
       <main class="dashboard-main">
         <div class="dashboard-topbar">
-          <h1>Olá, administração</h1>
-          <div class="user-pill" id="userBadge">Carregando...</div>
+          <div><h1>Olá, administração</h1><p class="dashboard-welcome">Tenha uma visão segura e atualizada da operação.</p></div>
+          <div class="topbar-actions"><button class="icon-btn" id="notificationToggle" type="button" aria-label="Abrir notificações">♧</button><button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar contraste">◐</button><div class="user-pill" id="userBadge">Carregando...</div></div>
         </div>
+        <div class="dashboard-toolbar"><input class="dashboard-search" id="dashboardSearch" type="search" placeholder="Buscar usuário, recurso ou relatório..." /><button class="secondary-btn" id="exportSchedule" type="button">Exportar agenda</button></div>
 
         <section class="dashboard-grid dashboard-grid--wide" id="overview">
           <article class="dashboard-card" id="usuarios">
@@ -55,6 +56,8 @@
             <p>+6 desde ontem</p>
           </article>
         </section>
+
+        <section class="calendar-panel" id="calendario" aria-labelledby="calendarTitle"><div class="calendar-header"><div><h2 id="calendarTitle">Calendário administrativo</h2><span id="calendarWeekLabel" class="dashboard-welcome"></span></div><div class="calendar-actions"><button class="secondary-btn" id="previousWeek" type="button" aria-label="Semana anterior">←</button><button class="secondary-btn" id="todayWeek" type="button">Hoje</button><button class="secondary-btn" id="nextWeek" type="button" aria-label="Próxima semana">→</button></div></div><div class="calendar-grid" id="weeklyCalendar"></div></section>
 
         <section class="insight-panel" id="relatorios">
           <div class="insight-card">
@@ -156,6 +159,6 @@
       </main>
     </div>
 
-    <script src="script.js"></script>
+    <div class="notification-panel" id="notificationPanel" aria-live="polite"></div><script src="../../Serviços/dashboard.js"></script><script src="script.js"></script>
   </body>
 </html>

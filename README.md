@@ -10,6 +10,10 @@ Projeto web de ensalamento para universidades, com objetivo de automatizar e cen
 - Informações de horários, avisos e localização do campus
 - Mapa de localização com OpenStreetMap
 - Estrutura organizada em HTML, CSS e JavaScript puro
+- Calendário semanal navegável por perfil, com exportação CSV
+- Busca instantânea nos cards, laboratórios e agenda
+- Central de notificações e modo de contraste persistente
+- Layout responsivo com menu lateral para celular e tablet
 
 ## Estrutura
 
@@ -36,3 +40,7 @@ Projeto web de ensalamento para universidades, com objetivo de automatizar e cen
 - Admin: usuário `admin` / senha `123456`
 
 Este é um protótipo funcional e inicial, pensado para evoluir com banco de dados, API e integração real no futuro.
+
+## Recursos dos painéis
+
+Todos os painéis exibem uma agenda contextual ao perfil, com navegação entre semanas e botão para exportar os compromissos. A busca filtra os conteúdos visíveis em tempo real e as preferências de contraste ficam salvas no navegador. O cadastro de laboratórios compartilhado entre coordenação e administração continua persistido em `localStorage` para facilitar a demonstração sem backend.
