@@ -1,0 +1,35 @@
+.form-link {
+  border: 0;
+  background: transparent;
+  color: var(--azul-medio);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.form-link:hover {
+  text-decoration: underline;
+}
+
+.message-success {
+  color: #19735b;
+}
+
+.account-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.account-form h3 {
+  color: var(--azul-escuro);
+  margin-bottom: -0.5rem;
+}
+
+.account-form p {
+  margin-bottom: 0.4rem;
+}
+
+.account-form[hidden],
+#loginForm[hidden] {
+  display: none;
+}

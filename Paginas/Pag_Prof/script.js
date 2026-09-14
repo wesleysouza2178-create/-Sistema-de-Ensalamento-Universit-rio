@@ -37,10 +37,16 @@ if (sidebarToggle && sidebar) {
 }
 
 function getLabs() {
-  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  return Array.isArray(saved) && saved.length
-    ? saved
-    : [
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return Array.isArray(saved) && saved.length ? saved : getDefaultLabs();
+  } catch {
+    return getDefaultLabs();
+  }
+}
+
+function getDefaultLabs() {
+  return [
         {
           id: 1,
           nome: 'Laboratório de Informática 01',
@@ -71,7 +77,7 @@ function getLabs() {
           status: 'Em manutenção',
           observacoes: 'Acesso restrito até revisão.'
         }
-      ];
+  ];
 }
 
 function renderTeacherLabs() {
@@ -113,7 +119,6 @@ if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('usuarioLogado');
     sessionStorage.removeItem('usuarioLogado');
-    sessionStorage.clear();
     window.location.replace('../Pagina_login/index.html');
   });
 }

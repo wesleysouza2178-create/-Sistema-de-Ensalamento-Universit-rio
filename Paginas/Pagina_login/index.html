@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login | CampusSync</title>
     <link rel="stylesheet" href="../../Css_geral/global.css" />
+    <link rel="stylesheet" href="login.css" />
     <style>
       body {
         min-height: 100vh;
@@ -192,10 +193,38 @@
 
           <div class="login-actions">
             <button type="submit" class="btn-login">Entrar</button>
+            <button type="button" class="form-link" id="showRegister">Criar novo usuário</button>
+            <button type="button" class="form-link" id="showRecovery">Esqueci minha senha</button>
             <a class="secondary-link" href="../../index.html">Voltar para a página inicial</a>
           </div>
 
           <div class="message" id="message" aria-live="polite"></div>
+        </form>
+
+        <form id="registerForm" class="account-form" hidden>
+          <h3>Criar usuário</h3>
+          <p>Cadastre seus dados para acessar o ambiente acadêmico.</p>
+          <label>Nome completo<input type="text" id="novoNome" required /></label>
+          <label>Usuário<input type="text" id="novoUsuario" minlength="3" required /></label>
+          <label>E-mail<input type="email" id="novoEmail" required /></label>
+          <label>Perfil<select id="novoPerfil"><option value="aluno">Aluno</option><option value="professor">Professor</option><option value="coordenador">Coordenador</option></select></label>
+          <label>Senha<input type="password" id="novaSenha" minlength="6" required /></label>
+          <label>Confirmar senha<input type="password" id="confirmarSenha" minlength="6" required /></label>
+          <button type="submit" class="btn-login">Criar conta</button>
+          <button type="button" class="form-link" data-back-login>Voltar para entrar</button>
+          <div class="message" id="registerMessage" aria-live="polite"></div>
+        </form>
+
+        <form id="recoveryForm" class="account-form" hidden>
+          <h3>Recuperar acesso</h3>
+          <p>Informe o usuário e o e-mail cadastrados para definir uma nova senha.</p>
+          <label>Usuário<input type="text" id="recuperarUsuario" required /></label>
+          <label>E-mail<input type="email" id="recuperarEmail" required /></label>
+          <label>Nova senha<input type="password" id="recuperarSenha" minlength="6" required /></label>
+          <label>Confirmar senha<input type="password" id="confirmarRecuperacao" minlength="6" required /></label>
+          <button type="submit" class="btn-login">Redefinir senha</button>
+          <button type="button" class="form-link" data-back-login>Voltar para entrar</button>
+          <div class="message" id="recoveryMessage" aria-live="polite"></div>
         </form>
       </section>
     </main>

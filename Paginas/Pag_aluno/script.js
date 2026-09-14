@@ -168,7 +168,6 @@ if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('usuarioLogado');
     sessionStorage.removeItem('usuarioLogado');
-    sessionStorage.clear();
     window.location.replace('../Pagina_login/index.html');
   });
 }

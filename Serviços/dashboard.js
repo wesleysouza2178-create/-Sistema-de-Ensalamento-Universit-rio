@@ -18,6 +18,13 @@
   const resourcesStorageKey = 'recursosCampusSync';
   let weekOffset = 0;
 
+  const profileRoutes = { aluno: '../Pag_aluno/index.html', professor: '../Pag_Prof/index.html', coordenador: '../Pag_Coordenador/index.html', admin: '../Pag_Adm/index.html' };
+  if (!currentUser) {
+    window.location.replace('../Pagina_login/index.html');
+  } else if (currentUser.perfil !== profile && profileRoutes[currentUser.perfil]) {
+    window.location.replace(profileRoutes[currentUser.perfil]);
+  }
+
   const schedules = {
     aluno: [
       ['Seg', '08:00', 'Engenharia de Software', 'Bloco B - 214'],
@@ -319,12 +326,13 @@
     const events = getVisibleEvents();
     const profileNames = { aluno: 'Aluno', professor: 'Professor', coordenador: 'Coordenador', admin: 'Administração' };
     const rows = events.map((event) => `<tr><td>${escapeHtml(event.day)}</td><td>${escapeHtml(event.time)}</td><td>${escapeHtml(event.title)}</td><td>${escapeHtml(event.location)}${profile === 'admin' && !event.fixed ? ` · ${escapeHtml(event.owner)}` : ''}</td></tr>`).join('');
+    const reservationRows = getRoomReservations().map((reservation) => `<tr><td>${escapeHtml(reservation.room)}</td><td>${new Date(`${reservation.date}T12:00:00`).toLocaleDateString('pt-BR')}</td><td>${escapeHtml(reservation.start)} às ${escapeHtml(reservation.end)}</td><td>${escapeHtml(reservation.owner)}</td></tr>`).join('');
     const reportWindow = window.open('', '_blank', 'width=1000,height=750');
     if (!reportWindow) {
       window.alert('Permita pop-ups para gerar a agenda em PDF.');
       return;
     }
-    reportWindow.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Agenda CampusSync</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font:13px Arial,sans-serif;color:#172b43;margin:0}.header{border-bottom:4px solid #e26d3f;padding-bottom:18px;margin-bottom:24px}.brand{font-size:25px;font-weight:800;color:#155fa0}.brand span{color:#172b43}h1{font-size:28px;margin:28px 0 8px}p{color:#526578}table{width:100%;border-collapse:collapse;margin-top:20px}th{background:#155fa0;color:#fff;text-align:left;text-transform:uppercase;font-size:10px}th,td{padding:10px;border:1px solid #dce8f2}tr:nth-child(even){background:#f5f9fc}.footer{margin-top:28px;padding-top:10px;border-top:1px solid #dce8f2;color:#748494;font-size:10px}</style></head><body><div class="header"><div class="brand">Campus<span>Sync</span></div><h1>Agenda semanal</h1><p>Perfil: <strong>${escapeHtml(profileNames[profile] || profile)}</strong><br>Gerado em ${escapeHtml(new Date().toLocaleString('pt-BR'))}</p></div><table><thead><tr><th>Dia</th><th>Horário</th><th>Atividade</th><th>Local</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">CampusSync · Agenda acadêmica · Documento preparado para salvar como PDF</div></body></html>`);
+    reportWindow.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Agenda CampusSync</title><style>@page{size:A4;margin:16mm}*{box-sizing:border-box}body{font:13px Arial,sans-serif;color:#172b43;margin:0}.header{border-bottom:4px solid #e26d3f;padding-bottom:18px;margin-bottom:24px}.brand{font-size:25px;font-weight:800;color:#155fa0}.brand span{color:#172b43}h1{font-size:28px;margin:28px 0 8px}h2{color:#155fa0;font-size:17px;margin:28px 0 8px}p{color:#526578}table{width:100%;border-collapse:collapse;margin-top:20px}th{background:#155fa0;color:#fff;text-align:left;text-transform:uppercase;font-size:10px}th,td{padding:10px;border:1px solid #dce8f2}tr:nth-child(even){background:#f5f9fc}.footer{margin-top:28px;padding-top:10px;border-top:1px solid #dce8f2;color:#748494;font-size:10px}</style></head><body><div class="header"><div class="brand">Campus<span>Sync</span></div><h1>Agenda semanal</h1><p>Perfil: <strong>${escapeHtml(profileNames[profile] || profile)}</strong><br>Gerado em ${escapeHtml(new Date().toLocaleString('pt-BR'))}</p></div><table><thead><tr><th>Dia</th><th>Horário</th><th>Atividade</th><th>Local</th></tr></thead><tbody>${rows}</tbody></table><h2>Reservas de salas</h2><table><thead><tr><th>Sala</th><th>Data</th><th>Horário</th><th>Responsável</th></tr></thead><tbody>${reservationRows || '<tr><td colspan="4">Nenhuma reserva registrada.</td></tr>'}</tbody></table><div class="footer">CampusSync · Agenda acadêmica · Documento preparado para salvar como PDF</div></body></html>`);
     reportWindow.document.close();
     reportWindow.focus();
     reportWindow.addEventListener('afterprint', () => reportWindow.close());
@@ -395,13 +403,17 @@
   function downloadReport(type) {
     const labs = (() => { try { const saved = JSON.parse(localStorage.getItem('laboratoriosCampusSync')); return Array.isArray(saved) ? saved : []; } catch { return []; } })();
     const users = getUsers();
+    const resources = getSharedResources();
+    const reservations = getRoomReservations();
     const generatedAt = new Date().toLocaleString('pt-BR');
     const reportNames = { campus: 'Relatório executivo do campus', users: 'Relatório de usuários', labs: 'Relatório de laboratórios' };
     const reportTitle = reportNames[type] || reportNames.campus;
     const profileNames = { aluno: 'Aluno', professor: 'Professor', coordenador: 'Coordenador', admin: 'Administração' };
-    const scheduleRows = (schedules[profile] || schedules.aluno).map((item) => `<tr><td>${escapeHtml(item[0])}</td><td>${escapeHtml(item[1])}</td><td>${escapeHtml(item[2])}</td><td>${escapeHtml(item[3])}</td></tr>`).join('');
+    const scheduleRows = getVisibleEvents().map((item) => `<tr><td>${escapeHtml(item.day)}</td><td>${escapeHtml(item.time)}</td><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.location)}${profile === 'admin' && !item.fixed ? ` · ${escapeHtml(item.owner)}` : ''}</td></tr>`).join('');
     const userRows = users.map((item) => `<tr><td>${escapeHtml(item.nome)}</td><td>${escapeHtml(item.usuario)}</td><td>${escapeHtml(item.perfil)}</td><td><span class="tag">${escapeHtml(item.status)}</span></td><td>${escapeHtml(item.acesso)}</td></tr>`).join('');
     const labRows = labs.length ? labs.map((item) => `<tr><td>${escapeHtml(item.nome)}</td><td>${escapeHtml(item.bloco)}</td><td>${escapeHtml(item.tipo)}</td><td>${escapeHtml(item.capacidade)}</td><td><span class="tag">${escapeHtml(item.status)}</span></td></tr>`).join('') : '<tr><td colspan="5">Nenhum laboratório cadastrado.</td></tr>';
+    const resourceRows = [...resources.rooms.map((name) => ['Sala', name]), ...resources.auditoriums.map((name) => ['Auditório', name]), ...labs.map((lab) => ['Laboratório', lab.nome])].map((item) => `<tr><td>${escapeHtml(item[0])}</td><td>${escapeHtml(item[1])}</td><td>Disponível na base compartilhada</td></tr>`).join('');
+    const reservationRows = reservations.length ? reservations.map((item) => `<tr><td>${escapeHtml(item.room)}</td><td>${new Date(`${item.date}T12:00:00`).toLocaleDateString('pt-BR')}</td><td>${escapeHtml(item.start)} às ${escapeHtml(item.end)}</td><td>${escapeHtml(item.owner)}</td></tr>`).join('') : '<tr><td colspan="4">Nenhuma reserva registrada.</td></tr>';
     const reportWindow = window.open('', '_blank', 'width=1100,height=800');
     if (!reportWindow) {
       window.alert('Permita pop-ups para gerar o relatório em PDF.');
@@ -412,7 +424,8 @@
     </style></head><body><section class="cover"><div><div class="brand">Campus<span>Sync</span></div><div class="accent"></div><h1>${escapeHtml(reportTitle)}</h1><p>Documento consolidado de acompanhamento acadêmico e operacional.</p></div><div class="meta"><strong>Perfil responsável:</strong> ${escapeHtml(profileNames[profile] || profile)}<br><strong>Gerado em:</strong> ${escapeHtml(generatedAt)}<br><strong>Classificação:</strong> Uso interno</div></section><main>
       <section class="section"><h2>Resumo executivo</h2><div class="summary"><div class="metric">Usuários cadastrados<strong>${users.length}</strong></div><div class="metric">Laboratórios<strong>${labs.length}</strong></div><div class="metric">Ocupação estimada<strong>78%</strong></div></div><p>Este relatório reúne os principais registros disponíveis no CampusSync para apoiar decisões, acompanhamento de recursos e organização da rotina universitária.</p></section>
       ${type === 'campus' || type === 'users' ? `<section class="section"><h2>Usuários e acessos</h2><table><thead><tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Status</th><th>Último acesso</th></tr></thead><tbody>${userRows}</tbody></table></section>` : ''}
-      ${type === 'campus' || type === 'labs' ? `<section class="section"><h2>Laboratórios e recursos</h2><table><thead><tr><th>Laboratório</th><th>Bloco</th><th>Tipo</th><th>Capacidade</th><th>Status</th></tr></thead><tbody>${labRows}</tbody></table></section>` : ''}
+      ${type === 'campus' || type === 'labs' ? `<section class="section"><h2>Laboratórios e recursos</h2><table><thead><tr><th>Laboratório</th><th>Bloco</th><th>Tipo</th><th>Capacidade</th><th>Status</th></tr></thead><tbody>${labRows}</tbody></table><h3>Base compartilhada</h3><table><thead><tr><th>Tipo</th><th>Nome</th><th>Situação</th></tr></thead><tbody>${resourceRows}</tbody></table></section>` : ''}
+      ${type === 'campus' ? `<section class="section"><h2>Reservas de salas</h2><table><thead><tr><th>Espaço</th><th>Data</th><th>Horário</th><th>Responsável</th></tr></thead><tbody>${reservationRows}</tbody></table></section>` : ''}
       <section class="section"><h2>Agenda do perfil</h2><table><thead><tr><th>Dia</th><th>Horário</th><th>Atividade</th><th>Local</th></tr></thead><tbody>${scheduleRows}</tbody></table></section><div class="footer">CampusSync · Sistema de Ensalamento Universitário · Relatório gerado automaticamente</div></main></body></html>`);
     reportWindow.document.close();
     reportWindow.focus();
@@ -432,9 +445,17 @@
   document.getElementById('addDemoUser')?.addEventListener('click', () => {
     const users = getUsers();
     const nextNumber = users.length + 1;
-    users.push({ usuario: `novo.usuario${nextNumber}`, nome: `Novo usuário ${nextNumber}`, perfil: 'aluno', status: 'Ativo', acesso: 'Ainda não acessou' });
+    users.push({ usuario: `novo.usuario${nextNumber}`, nome: `Novo usuário ${nextNumber}`, email: `novo.usuario${nextNumber}@campussync.edu.br`, perfil: 'aluno', status: 'Ativo', acesso: 'Ainda não acessou', senha: '123456' });
     localStorage.setItem('usuariosCampusSync', JSON.stringify(users));
     renderUsers();
+  });
+  document.getElementById('exportUsersDatabase')?.addEventListener('click', () => {
+    const link = document.createElement('a');
+    const safeUsers = getUsers().map(({ senha, ...user }) => user);
+    link.href = URL.createObjectURL(new Blob([JSON.stringify(safeUsers, null, 2)], { type: 'application/json;charset=utf-8' }));
+    link.download = `base-usuarios-campussync-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
   });
   document.getElementById('notificationToggle')?.addEventListener('click', () => notificationPanel?.classList.toggle('is-visible'));
   document.getElementById('themeToggle')?.addEventListener('click', () => {
