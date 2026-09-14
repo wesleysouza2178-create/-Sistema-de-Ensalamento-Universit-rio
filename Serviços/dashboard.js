@@ -732,6 +732,39 @@
     return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character]));
   }
 
+  function excelCell(value) {
+    const text = String(value ?? '');
+    const safeText = /^[=+\-@]/.test(text) ? `'${text}` : text;
+    return escapeHtml(safeText);
+  }
+
+  function exportUsersToExcel() {
+    const headers = ['Nome', 'Usuário', 'E-mail', 'Perfil', 'Status', 'Último acesso', 'Criado em', 'Senha configurada', 'Proteção da senha'];
+    const rows = getUsers().map((user) => {
+      const hasPassword = Boolean(user.passwordHash || user.senha);
+      const passwordProtection = user.passwordHash ? 'Hash SHA-256 armazenado' : user.senha ? 'Senha legada não exportada' : 'Não configurada';
+      return [
+        user.nome,
+        user.usuario,
+        user.email,
+        user.perfil,
+        user.status || 'Ativo',
+        user.acesso || 'Ainda não acessou',
+        user.criadoEm ? new Date(user.criadoEm).toLocaleString('pt-BR') : 'Não informado',
+        hasPassword ? 'Sim' : 'Não',
+        passwordProtection
+      ];
+    });
+    const table = `<table><thead><tr>${headers.map((header) => `<th>${excelCell(header)}</th>`).join('')}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${excelCell(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    const workbook = `<!doctype html><html><head><meta charset="utf-8"><style>table{border-collapse:collapse;font-family:Arial,sans-serif}th,td{border:1px solid #b8c4d3;padding:7px;text-align:left}th{background:#0d3b66;color:#fff}td{mso-number-format:"\\@"}</style></head><body><h2>Base de usuários CampusSync</h2><p>Senhas e hashes não são exportados por segurança.</p>${table}</body></html>`;
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(new Blob([`\ufeff${workbook}`], { type: 'application/vnd.ms-excel;charset=utf-8' }));
+    link.href = url;
+    link.download = `base-usuarios-campussync-${new Date().toISOString().slice(0, 10)}.xls`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   function downloadReport(type) {
     const labs = (() => { try { const saved = JSON.parse(localStorage.getItem('laboratoriosCampusSync')); return Array.isArray(saved) ? saved : []; } catch { return []; } })();
     const users = getUsers();
@@ -793,18 +826,7 @@
     localStorage.setItem('usuariosCampusSync', JSON.stringify(users));
     renderUsers();
   });
-  document.getElementById('exportUsersDatabase')?.addEventListener('click', () => {
-    const link = document.createElement('a');
-    const safeUsers = getUsers().map(({ senha, passwordHash, ...user }) => ({
-      ...user,
-      status: user.status || 'Ativo',
-      acesso: user.acesso || 'Ainda não acessou'
-    }));
-    link.href = URL.createObjectURL(new Blob([JSON.stringify(safeUsers, null, 2)], { type: 'application/json;charset=utf-8' }));
-    link.download = `base-usuarios-campussync-${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  });
+  document.getElementById('exportUsersDatabase')?.addEventListener('click', exportUsersToExcel);
   document.getElementById('notificationToggle')?.addEventListener('click', () => notificationPanel?.classList.toggle('is-visible'));
   document.getElementById('themeToggle')?.addEventListener('click', () => {
     root.classList.toggle('theme-dim');

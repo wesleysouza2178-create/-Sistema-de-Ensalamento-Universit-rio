@@ -58,7 +58,7 @@
         </section>
 
         <section class="management-panel" id="usuarios" aria-labelledby="usersTitle">
-          <div class="management-header"><div><h2 id="usersTitle">Usuários cadastrados</h2><p>Consulte perfis, acesso e situação dos usuários.</p></div><div class="management-actions"><button class="secondary-btn" id="exportUsersDatabase" type="button">Exportar base JSON</button><button class="secondary-btn" id="addDemoUser" type="button">Adicionar usuário</button></div></div>
+          <div class="management-header"><div><h2 id="usersTitle">Usuários cadastrados</h2><p>Consulte perfis, acesso e situação dos usuários. Senhas nunca são exportadas.</p></div><div class="management-actions"><button class="secondary-btn" id="exportUsersDatabase" type="button">Exportar para Excel</button><button class="secondary-btn" id="addDemoUser" type="button">Adicionar usuário</button></div></div>
           <div class="management-toolbar"><input id="userSearch" type="search" placeholder="Buscar por nome ou usuário" /><select id="userProfileFilter"><option value="todos">Todos os perfis</option><option value="aluno">Alunos</option><option value="professor">Professores</option><option value="coordenador">Coordenadores</option><option value="admin">Administração</option></select></div>
           <div class="user-table-wrap"><table class="user-table"><thead><tr><th>Usuário</th><th>Perfil</th><th>Status</th><th>Último acesso</th><th>Ações</th></tr></thead><tbody id="userList"></tbody></table></div>
         </section>
