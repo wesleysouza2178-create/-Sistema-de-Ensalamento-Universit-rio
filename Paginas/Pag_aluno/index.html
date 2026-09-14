@@ -34,10 +34,10 @@
 
         <section class="dashboard-grid dashboard-grid--wide" id="overview">
           <article class="dashboard-card" id="horarios">
-            <span class="card-label">Próxima aula</span>
-            <h2>Engenharia de Software</h2>
-            <p>Bloco B - Sala 214</p>
-            <p>08:00 às 09:40</p>
+            <div class="next-class-heading"><span class="card-label">Próxima aula</span><span class="live-dot">Agora</span></div>
+            <p class="next-class-day">Hoje, segunda-feira</p><h2>Engenharia de Software</h2>
+            <div class="next-class-info"><span>Bloco B · Sala 214</span><strong>08:00 <small>às 09:40</small></strong></div>
+            <div class="class-progress"><span style="width: 42%;"></span></div><small class="class-progress-label">Começa em 25 minutos</small>
           </article>
 
           <article class="dashboard-card">
@@ -50,10 +50,10 @@
             </ul>
           </article>
 
-          <article class="dashboard-card" id="salas">
+          <article class="dashboard-card room-card" id="salas">
             <span class="card-label">Salas</span>
-            <h2>03 livres</h2>
-            <p>1 sala reservada no bloco A</p>
+            <h2>03 <small>livres</small></h2>
+            <p>1 sala reservada no bloco A</p><span class="card-link">Ver disponibilidade →</span>
           </article>
 
           <article class="dashboard-card" id="avisos">
@@ -67,7 +67,7 @@
         </section>
 
         <section class="calendar-panel" id="calendario" aria-labelledby="calendarTitle">
-          <div class="calendar-header"><div><h2 id="calendarTitle">Calendário de aulas</h2><span id="calendarWeekLabel" class="dashboard-welcome"></span></div><div class="calendar-actions"><button class="secondary-btn" id="previousWeek" type="button" aria-label="Semana anterior">←</button><button class="secondary-btn" id="todayWeek" type="button">Hoje</button><button class="secondary-btn" id="nextWeek" type="button" aria-label="Próxima semana">→</button></div></div>
+          <div class="calendar-header"><div><h2 id="calendarTitle">Calendário de aulas</h2><span id="calendarWeekLabel" class="dashboard-welcome"></span></div><div class="calendar-actions"><button class="secondary-btn" id="previousWeek" type="button" aria-label="Semana anterior">←</button><button class="secondary-btn" id="todayWeek" type="button">Hoje</button><button class="secondary-btn" id="nextWeek" type="button" aria-label="Próxima semana">→</button><button class="primary-btn" id="addCalendarEvent" type="button">+ Compromisso</button></div></div>
           <div class="calendar-grid" id="weeklyCalendar"></div><div class="calendar-summary" id="calendarSummary"></div>
         </section>
 
@@ -76,32 +76,32 @@
             <h3>Resumo do aluno</h3>
             <ul class="insight-list">
               <li><span>Frequência atual</span><span class="status-pill">91%</span></li>
-              <li><span>Trabalhos</span><span class="status-pill">03</span></li>
-              <li><span>Próxima revisão</span><span class="status-pill warning">Hoje</span></li>
+              <li><span>Trabalhos entregues</span><span class="status-pill">08/10</span></li>
+              <li><span>Próxima avaliação</span><span class="status-pill warning">12/09</span></li>
             </ul>
+            <div class="progress-track" aria-label="Frequência de 91 por cento"><span style="width: 91%;"></span></div>
+            <p class="insight-note">Sua frequência está acima do mínimo recomendado de 75%.</p>
           </div>
 
-          <div class="insight-card">
-            <h3>Atalhos</h3>
-            <ul class="insight-list">
-              <li><span>Horário da semana</span><span class="status-pill">Ver</span></li>
-              <li><span>Laboratórios</span><span class="status-pill">Reservar</span></li>
-              <li><span>Biblioteca</span><span class="status-pill">Abrir</span></li>
-            </ul>
-          </div>
+        </section>
+
+        <section class="student-tasks" aria-labelledby="tasksTitle">
+          <div class="student-section-heading"><div><span class="card-label">Organização</span><h2 id="tasksTitle">Pendências da semana</h2></div><span class="status-pill warning">3 itens</span></div>
+          <div class="task-grid"><article class="task-item"><span class="task-icon">!</span><div><strong>Entregar relatório de Banco de Dados</strong><p>Prazo: hoje, 23:59</p></div><span class="status-pill warning">Urgente</span></article><article class="task-item"><span class="task-icon">✓</span><div><strong>Revisar material de Física</strong><p>Próxima aula: terça-feira</p></div><span class="status-pill">Pendente</span></article><article class="task-item"><span class="task-icon">↗</span><div><strong>Confirmar grupo do projeto</strong><p>Até sexta-feira</p></div><span class="status-pill">Aberto</span></article></div>
         </section>
 
         <section class="lab-visual-panel" id="labs" aria-labelledby="labViewTitle">
           <div class="lab-visual-header">
-            <h2 id="labViewTitle">Laboratórios disponíveis</h2>
-            <select id="studentLabFilter">
+            <div><span class="card-label">Recursos acadêmicos</span><h2 id="labViewTitle">Laboratórios</h2><p class="lab-panel-subtitle">Consulte equipamentos e reserve um espaço disponível.</p></div>
+            <div class="lab-controls"><input id="studentLabSearch" type="search" placeholder="Buscar laboratório..." aria-label="Buscar laboratório" /><select id="studentLabFilter" aria-label="Filtrar por status">
               <option value="todos">Todos</option>
               <option value="Disponível">Disponíveis</option>
               <option value="Em uso">Em uso</option>
               <option value="Em manutenção">Em manutenção</option>
-            </select>
+            </select><select id="studentLabSort" aria-label="Ordenar laboratórios"><option value="nome">Ordenar: nome</option><option value="capacidade">Ordenar: capacidade</option><option value="status">Ordenar: status</option></select></div>
           </div>
 
+          <div class="lab-stats" id="studentLabStats"></div>
           <div id="studentLabList" class="lab-visual-list"></div>
         </section>
 

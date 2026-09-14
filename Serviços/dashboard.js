@@ -10,6 +10,10 @@
   const userList = document.getElementById('userList');
   const userSearch = document.getElementById('userSearch');
   const userProfileFilter = document.getElementById('userProfileFilter');
+  const calendarPanel = document.querySelector('.calendar-panel');
+  const currentUser = getLoggedUser();
+  const currentUsername = currentUser?.usuario || profile;
+  const eventsStorageKey = 'compromissosCampusSync';
   let weekOffset = 0;
 
   const schedules = {
@@ -52,6 +56,52 @@
     admin: [['Sistema operacional', 'Backup automático concluído com sucesso.'], ['Atenção', 'Manutenção do Bloco B agendada para amanhã.']]
   };
 
+  function getLoggedUser() {
+    try {
+      const raw = localStorage.getItem('usuarioLogado') || sessionStorage.getItem('usuarioLogado');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function getSavedEvents() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(eventsStorageKey));
+      return saved && typeof saved === 'object' ? saved : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function saveEvents(events) {
+    localStorage.setItem(eventsStorageKey, JSON.stringify(events));
+  }
+
+  function getLocationOptions() {
+    let labs = [];
+    try {
+      const savedLabs = JSON.parse(localStorage.getItem('laboratoriosCampusSync'));
+      labs = Array.isArray(savedLabs) ? savedLabs.map((lab) => lab.nome).filter(Boolean) : [];
+    } catch {
+      labs = [];
+    }
+    if (!labs.length) labs = ['Laboratório de Informática 01', 'Laboratório de Química', 'Laboratório de Eletrônica'];
+    const rooms = ['Sala 101', 'Sala 108', 'Sala 204', 'Sala 214', 'Sala da coordenação', 'Sala dos professores'];
+    const auditoriums = ['Auditório 1', 'Auditório 2', 'Auditório principal'];
+    const options = (items) => items.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
+    return `<option value="">Selecione um local</option><optgroup label="Laboratórios">${options(labs)}</optgroup><optgroup label="Salas">${options(rooms)}</optgroup><optgroup label="Auditórios">${options(auditoriums)}</optgroup>`;
+  }
+
+  function getVisibleEvents() {
+    const defaults = (schedules[profile] || schedules.aluno).map((event) => ({ day: event[0], time: event[1], title: event[2], location: event[3], owner: profile, fixed: true }));
+    const saved = getSavedEvents();
+    const ownEvents = (saved[currentUsername] || []).map((event) => ({ ...event, owner: currentUsername }));
+    if (profile !== 'admin') return [...defaults, ...ownEvents];
+    const allEvents = Object.entries(saved).flatMap(([owner, ownerEvents]) => (ownerEvents || []).map((event) => ({ ...event, owner })));
+    return [...defaults, ...allEvents];
+  }
+
   function getMonday(offset) {
     const date = new Date();
     const day = date.getDay() || 7;
@@ -60,19 +110,31 @@
     return date;
   }
 
+  function formatDateInput(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function getWeekday(date) {
+    return dayNames[(date.getDay() + 6) % 7];
+  }
+
   function renderCalendar() {
     if (!calendar) return;
     const monday = getMonday(weekOffset);
-    const events = schedules[profile] || schedules.aluno;
+    const events = getVisibleEvents();
     const today = new Date();
     calendar.innerHTML = dayNames.map((name, index) => {
       const date = new Date(monday);
       date.setDate(monday.getDate() + index);
       const isToday = date.toDateString() === today.toDateString();
-      const dayEvents = events.filter((event) => event[0] === name).sort((first, second) => first[1].localeCompare(second[1]));
+      const dateInput = formatDateInput(date);
+      const dayEvents = events.filter((event) => event.date ? event.date === dateInput : event.day === name).sort((first, second) => first.time.localeCompare(second.time));
       return `<article class="calendar-day${isToday ? ' is-today' : ''}">
         <header class="calendar-day-header"><h3>${name}</h3><span class="calendar-date">${date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span></header>
-        ${dayEvents.length ? dayEvents.map((event) => `<div class="class-event"><span class="event-time">${escapeHtml(event[1])}</span><strong>${escapeHtml(event[2])}</strong><span>${escapeHtml(event[3])}</span></div>`).join('') : '<p class="empty-calendar">Livre</p>'}
+        ${dayEvents.length ? dayEvents.map((event) => `<div class="class-event"><span class="event-time">${escapeHtml(event.time)}</span><strong>${escapeHtml(event.title)}</strong><span>${escapeHtml(event.location)}${profile === 'admin' && !event.fixed ? ` · ${escapeHtml(event.owner)}` : ''}</span>${!event.fixed && (profile === 'admin' || event.owner === currentUsername) ? `<button type="button" class="delete-calendar-event" data-event-id="${escapeHtml(event.id)}" data-event-owner="${escapeHtml(event.owner)}" aria-label="Excluir ${escapeHtml(event.title)}">Excluir</button>` : ''}</div>`).join('') : '<p class="empty-calendar">Livre</p>'}
       </article>`;
     }).join('');
     if (weekLabel) {
@@ -82,9 +144,41 @@
     }
     const summary = document.getElementById('calendarSummary');
     if (summary) {
-      const nextEvent = events[0];
-      summary.innerHTML = `<span><strong>${events.length}</strong> compromissos na semana</span><span><strong>${events.filter((event) => event[0] !== 'Sáb' && event[0] !== 'Dom').length}</strong> atividades em dias úteis</span><span><strong>${nextEvent ? escapeHtml(nextEvent[1]) : '--'}</strong> próxima atividade</span>`;
+      const nextEvent = [...events].sort((first, second) => first.time.localeCompare(second.time))[0];
+      summary.innerHTML = `<span><strong>${events.length}</strong> compromissos visíveis</span><span><strong>${events.filter((event) => event.day !== 'Sáb' && event.day !== 'Dom').length}</strong> atividades em dias úteis</span><span><strong>${nextEvent ? escapeHtml(nextEvent.time) : '--'}</strong> próximo horário</span>`;
     }
+    calendar.querySelectorAll('.delete-calendar-event').forEach((button) => button.addEventListener('click', () => deleteCalendarEvent(button.dataset.eventId, button.dataset.eventOwner)));
+  }
+
+  function deleteCalendarEvent(eventId, owner) {
+    if (!window.confirm('Excluir este compromisso?')) return;
+    const saved = getSavedEvents();
+    saved[owner] = (saved[owner] || []).filter((event) => String(event.id) !== String(eventId));
+    if (!saved[owner].length) delete saved[owner];
+    saveEvents(saved);
+    renderCalendar();
+  }
+
+  function renderEventForm() {
+    if (!calendarPanel || document.getElementById('calendarEventForm')) return;
+    const form = document.createElement('form');
+    form.id = 'calendarEventForm';
+    form.className = 'calendar-event-form';
+    form.innerHTML = `<div><strong>Novo compromisso</strong><span>Escolha a data e selecione um espaço cadastrado.</span></div><label>Data<input name="date" type="date" min="${formatDateInput(new Date())}" value="${formatDateInput(new Date())}" required></label><label>Horário<input name="time" type="time" required></label><label>Compromisso<input name="title" type="text" placeholder="Ex.: Estudo para prova" required></label><label>Local<select name="location" required>${getLocationOptions()}</select></label><div class="calendar-event-form-actions"><button class="primary-btn" type="submit">Adicionar</button><button class="secondary-btn" id="cancelCalendarEvent" type="button">Cancelar</button></div>`;
+    calendarPanel.insertBefore(form, calendarPanel.querySelector('.calendar-grid'));
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const saved = getSavedEvents();
+      const ownerEvents = saved[currentUsername] || [];
+      const selectedDate = new Date(`${data.get('date')}T12:00:00`);
+      ownerEvents.push({ id: `${currentUsername}-${Date.now()}`, date: data.get('date'), day: getWeekday(selectedDate), time: data.get('time'), title: data.get('title').toString().trim(), location: data.get('location').toString().trim() });
+      saved[currentUsername] = ownerEvents;
+      saveEvents(saved);
+      form.remove();
+      renderCalendar();
+    });
+    document.getElementById('cancelCalendarEvent').addEventListener('click', () => form.remove());
   }
 
   function renderNotifications() {
@@ -93,9 +187,9 @@
   }
 
   function exportSchedule() {
-    const events = schedules[profile] || schedules.aluno;
+    const events = getVisibleEvents();
     const profileNames = { aluno: 'Aluno', professor: 'Professor', coordenador: 'Coordenador', admin: 'Administração' };
-    const rows = events.map((event) => `<tr><td>${escapeHtml(event[0])}</td><td>${escapeHtml(event[1])}</td><td>${escapeHtml(event[2])}</td><td>${escapeHtml(event[3])}</td></tr>`).join('');
+    const rows = events.map((event) => `<tr><td>${escapeHtml(event.day)}</td><td>${escapeHtml(event.time)}</td><td>${escapeHtml(event.title)}</td><td>${escapeHtml(event.location)}${profile === 'admin' && !event.fixed ? ` · ${escapeHtml(event.owner)}` : ''}</td></tr>`).join('');
     const reportWindow = window.open('', '_blank', 'width=1000,height=750');
     if (!reportWindow) {
       window.alert('Permita pop-ups para gerar a agenda em PDF.');
@@ -200,6 +294,7 @@
   document.getElementById('previousWeek')?.addEventListener('click', () => { weekOffset -= 1; renderCalendar(); });
   document.getElementById('nextWeek')?.addEventListener('click', () => { weekOffset += 1; renderCalendar(); });
   document.getElementById('todayWeek')?.addEventListener('click', () => { weekOffset = 0; renderCalendar(); });
+  document.getElementById('addCalendarEvent')?.addEventListener('click', renderEventForm);
   document.getElementById('exportSchedule')?.addEventListener('click', exportSchedule);
   document.getElementById('printSchedule')?.addEventListener('click', () => window.print());
   document.querySelectorAll('[data-report]').forEach((button) => button.addEventListener('click', () => downloadReport(button.dataset.report)));
