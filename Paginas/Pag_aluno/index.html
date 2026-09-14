@@ -20,6 +20,7 @@
           <a href="#overview" class="active">Dashboard</a>
           <a href="#horarios">Horários</a>
           <a href="#labs">Laboratórios</a>
+          <a href="#reservaSalas">Reservar sala</a>
           <a href="#salas">Salas</a>
           <a href="#avisos">Avisos</a>
         </nav>
@@ -69,6 +70,19 @@
         <section class="calendar-panel" id="calendario" aria-labelledby="calendarTitle">
           <div class="calendar-header"><div><h2 id="calendarTitle">Calendário de aulas</h2><span id="calendarWeekLabel" class="dashboard-welcome"></span></div><div class="calendar-actions"><button class="secondary-btn" id="previousWeek" type="button" aria-label="Semana anterior">←</button><button class="secondary-btn" id="todayWeek" type="button">Hoje</button><button class="secondary-btn" id="nextWeek" type="button" aria-label="Próxima semana">→</button><button class="primary-btn" id="addCalendarEvent" type="button">+ Compromisso</button></div></div>
           <div class="calendar-grid" id="weeklyCalendar"></div><div class="calendar-summary" id="calendarSummary"></div>
+        </section>
+
+        <section class="room-booking-panel" id="reservaSalas" aria-labelledby="roomBookingTitle">
+          <div class="room-booking-header"><div><span class="card-label">Reserva compartilhada</span><h2 id="roomBookingTitle">Reservar uma sala</h2><p>Consulte a agenda e escolha um espaço livre para seus estudos ou atividades.</p></div></div>
+          <form id="roomBookingForm" class="room-booking-form">
+            <label>Sala<select name="room" required><option value="">Selecione uma sala</option><option>Sala 101</option><option>Sala 108</option><option>Sala 204</option><option>Sala 214</option><option>Sala 305</option><option>Sala de estudos A</option></select></label>
+            <label>Data<input name="date" type="date" required /></label>
+            <label>Início<input name="start" type="time" required /></label>
+            <label>Fim<input name="end" type="time" required /></label>
+            <button class="primary-btn" type="submit">Confirmar reserva</button>
+          </form>
+          <p class="room-booking-feedback" id="roomBookingFeedback" role="status"></p>
+          <div class="room-reservation-list" id="roomReservationList"></div>
         </section>
 
         <section class="insight-panel">

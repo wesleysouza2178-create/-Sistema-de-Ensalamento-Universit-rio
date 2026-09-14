@@ -98,6 +98,8 @@
 
           <div class="lab-content">
             <form class="lab-form" id="labForm">
+              <input type="hidden" id="labIdEdit" />
+              <div class="edit-mode-banner" id="adminEditBanner" hidden>Modo de edição ativo <button type="button" id="cancelAdminEditTop">Cancelar edição</button></div>
               <div class="form-grid">
                 <div class="form-field">
                   <label for="nomeLaboratorio">Nome do laboratório</label>
@@ -154,7 +156,7 @@
                 </div>
               </div>
 
-              <button class="primary-btn" type="submit">Adicionar laboratório</button>
+              <div class="form-actions"><button class="primary-btn" id="adminSaveLabBtn" type="submit">Adicionar laboratório</button><button class="secondary-btn" id="cancelAdminEditBtn" type="button">Cancelar</button><span class="form-feedback" id="adminLabFeedback" role="status"></span></div>
             </form>
 
             <div>

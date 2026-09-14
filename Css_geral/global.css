@@ -548,6 +548,12 @@ iframe {
   .calendar-summary { grid-template-columns: 1fr; }
   .calendar-event-form { grid-template-columns: 1fr 1fr; }
   .calendar-event-form > div:first-child, .calendar-event-form label:nth-of-type(3), .calendar-event-form label:nth-of-type(4), .calendar-event-form-actions { grid-column: 1 / -1; }
+  .room-booking-form { grid-template-columns: 1fr 1fr; }
+  .room-booking-form label:first-child, .room-booking-form button { grid-column: 1 / -1; }
+  .room-reservation-item { grid-template-columns: 1fr auto; }
+  .room-reservation-item small { grid-column: 1 / -1; }
+  .resource-form { flex-direction: column; }
+  .shared-resource-list { grid-template-columns: 1fr; }
   .user-pill { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
   .report-actions { width: 100%; justify-content: stretch; }
   .report-actions button { flex: 1 1 100%; }
@@ -566,6 +572,11 @@ iframe {
 
 .dashboard-sidebar {
   background: linear-gradient(180deg, var(--azul-escuro), #123a68);
+.panel-helper { color: var(--cinza-700); font-size: .84rem; margin-top: .25rem; }
+.edit-mode-banner { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .65rem .8rem; border-radius: .65rem; background: #fff0d6; color: #805000; font-size: .8rem; font-weight: 700; }
+.edit-mode-banner button { border: 0; background: transparent; color: #805000; text-decoration: underline; font: inherit; font-size: .75rem; cursor: pointer; }
+.form-feedback { color: var(--success); font-size: .8rem; font-weight: 700; align-self: center; }
+.form-feedback:empty { display: none; }
   color: var(--branco);
   padding: 1.5rem 1rem;
   position: relative;
@@ -691,6 +702,34 @@ iframe {
 .delete-calendar-event { border: 0; margin-top: .25rem; padding: .25rem 0; background: transparent; color: #b42318; font: inherit; font-size: .68rem; font-weight: 800; cursor: pointer; text-align: left; }
 .delete-calendar-event:hover { text-decoration: underline; }
 body.theme-dim .calendar-event-form, body.theme-dim .calendar-event-form input, body.theme-dim .calendar-event-form select { background: #1d3b5c; color: #eef5ff; }
+.room-booking-panel { margin-top: 1.5rem; padding: 1.35rem; background: #fff; border: 1px solid rgba(13,59,102,.06); border-radius: 1.3rem; box-shadow: 0 14px 28px rgba(13,59,102,.06); }
+.room-booking-header { margin-bottom: 1rem; }
+.room-booking-header h2 { color: var(--azul-escuro); margin-top: .1rem; }
+.room-booking-header p { color: var(--cinza-700); margin-top: .25rem; font-size: .85rem; }
+.room-booking-form { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr auto; align-items: end; gap: .7rem; }
+.room-booking-form label { display: grid; gap: .3rem; color: var(--azul-escuro); font-size: .72rem; font-weight: 700; }
+.room-booking-form select, .room-booking-form input { width: 100%; padding: .7rem .75rem; border: 1px solid rgba(13,59,102,.12); border-radius: .65rem; background: #f8fbff; font: inherit; font-size: .82rem; }
+.room-booking-feedback { min-height: 1.2rem; color: var(--success); font-size: .8rem; font-weight: 700; margin-top: .75rem; }
+.room-reservation-list { display: grid; gap: .55rem; margin-top: 1rem; }
+.room-reservation-item { display: grid; grid-template-columns: 1.2fr 1fr auto; align-items: center; gap: 1rem; padding: .8rem .9rem; border: 1px solid rgba(13,59,102,.07); border-radius: .75rem; background: #f7faff; }
+.room-reservation-item div { display: grid; gap: .2rem; }
+.room-reservation-item strong { color: var(--azul-escuro); font-size: .86rem; }
+.room-reservation-item span, .room-reservation-item small { color: var(--cinza-700); font-size: .76rem; }
+.delete-room-reservation { border: 0; border-radius: .55rem; padding: .45rem .65rem; background: rgba(180,35,24,.09); color: #b42318; font: inherit; font-size: .74rem; font-weight: 700; cursor: pointer; }
+body.theme-dim .room-booking-panel, body.theme-dim .room-booking-form select, body.theme-dim .room-booking-form input, body.theme-dim .room-reservation-item { background: #17324f; color: #eef5ff; }
+.shared-resources-panel { margin-top: 1.5rem; padding: 1.35rem; background: #fff; border: 1px solid rgba(13,59,102,.06); border-radius: 1.3rem; box-shadow: 0 14px 28px rgba(13,59,102,.06); }
+.shared-resources-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+.shared-resources-header h2 { color: var(--azul-escuro); margin-top: .1rem; }
+.shared-resources-header p { color: var(--cinza-700); font-size: .84rem; margin-top: .25rem; }
+.resource-form { display: flex; gap: .6rem; margin-top: 1rem; padding: .8rem; border-radius: .75rem; background: #f5f9fd; }
+.resource-form select, .resource-form input { flex: 1; min-width: 150px; padding: .7rem .75rem; border: 1px solid rgba(13,59,102,.12); border-radius: .6rem; background: #fff; font: inherit; }
+.shared-resource-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin-top: 1rem; }
+.resource-group { padding: .8rem; border: 1px solid rgba(13,59,102,.07); border-radius: .8rem; background: #f8fbff; }
+.resource-group h3 { color: var(--azul-escuro); font-size: .9rem; margin-bottom: .55rem; }
+.shared-resource-item { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .5rem 0; border-top: 1px solid rgba(13,59,102,.07); color: var(--cinza-700); font-size: .78rem; }
+.delete-resource-btn { border: 0; background: transparent; color: #b42318; font: inherit; font-size: .7rem; font-weight: 700; cursor: pointer; }
+.delete-resource-btn:hover { text-decoration: underline; }
+body.theme-dim .shared-resources-panel, body.theme-dim .resource-form, body.theme-dim .resource-form select, body.theme-dim .resource-form input, body.theme-dim .resource-group { background: #17324f; color: #eef5ff; }
 .quick-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
 .quick-actions button { border: 1px solid rgba(13,59,102,.1); background: #fff; color: var(--azul-escuro); border-radius: .7rem; padding: .65rem .85rem; font: inherit; font-weight: 700; cursor: pointer; }
 .quick-actions button:hover { background: var(--azul-claro); }

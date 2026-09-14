@@ -8,6 +8,11 @@ const sidebar = document.getElementById('sidebarAdmin');
 const photoInput = document.getElementById('fotoLaboratorio');
 const previewImage = document.getElementById('labPreviewImage');
 const previewWrapper = document.getElementById('labPhotoPreview');
+const editBanner = document.getElementById('adminEditBanner');
+const cancelEditTop = document.getElementById('cancelAdminEditTop');
+const cancelEditBtn = document.getElementById('cancelAdminEditBtn');
+const saveLabBtn = document.getElementById('adminSaveLabBtn');
+const labFeedback = document.getElementById('adminLabFeedback');
 
 function getUsuarioLogado() {
   const localUser = localStorage.getItem('usuarioLogado');
@@ -42,6 +47,7 @@ if (sidebarToggle && sidebar) {
 
 const initialLabs = [
   {
+    id: 1,
     nome: 'Laboratório de Informática 01',
     bloco: 'Bloco A',
     capacidade: 30,
@@ -51,6 +57,7 @@ const initialLabs = [
     observacoes: 'Acesso por credencial da turma.'
   },
   {
+    id: 2,
     nome: 'Laboratório de Química',
     bloco: 'Bloco C',
     capacidade: 24,
@@ -62,12 +69,49 @@ const initialLabs = [
 ];
 
 function getLabs() {
-  const labs = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  return Array.isArray(labs) && labs.length ? labs : initialLabs;
+  try {
+    const labs = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return Array.isArray(labs) && labs.length ? labs.map((lab, index) => ({ ...lab, id: lab.id || index + 1 })) : initialLabs;
+  } catch {
+    return initialLabs;
+  }
 }
 
 function saveLabs(labs) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(labs));
+  window.dispatchEvent(new Event('campusSyncDataChanged'));
+}
+
+function showFeedback(text) {
+  if (!labFeedback) return;
+  labFeedback.textContent = text;
+  window.setTimeout(() => { labFeedback.textContent = ''; }, 3500);
+}
+
+function clearEditMode() {
+  labForm.reset();
+  document.getElementById('labIdEdit').value = '';
+  previewWrapper.style.display = 'none';
+  previewImage.src = '';
+  if (photoInput) photoInput.value = '';
+  if (editBanner) editBanner.hidden = true;
+  if (saveLabBtn) saveLabBtn.textContent = 'Adicionar laboratório';
+}
+
+function startEdit(lab) {
+  document.getElementById('labIdEdit').value = lab.id;
+  document.getElementById('nomeLaboratorio').value = lab.nome;
+  document.getElementById('blocoLaboratorio').value = lab.bloco;
+  document.getElementById('capacidadeLaboratorio').value = lab.capacidade;
+  document.getElementById('tipoLaboratorio').value = lab.tipo;
+  document.getElementById('equipamentosLaboratorio').value = lab.equipamentos;
+  document.getElementById('statusLaboratorio').value = lab.status;
+  document.getElementById('obsLaboratorio').value = lab.observacoes || '';
+  if (lab.foto) { previewWrapper.style.display = 'block'; previewImage.src = lab.foto; }
+  if (editBanner) editBanner.hidden = false;
+  if (saveLabBtn) saveLabBtn.textContent = 'Atualizar laboratório';
+  document.getElementById('nomeLaboratorio').focus();
+  labForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function renderLabs() {
@@ -97,7 +141,7 @@ function renderLabs() {
           </div>
           <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
             <span class="status-badge">${lab.status}</span>
-            <button class="delete-btn" type="button" data-index="${index}">Excluir</button>
+            <div class="mini-actions"><button class="secondary-btn admin-edit-lab-btn" type="button" data-index="${index}">Editar</button><button class="delete-btn" type="button" data-index="${index}">Excluir</button></div>
           </div>
         </article>
       `
@@ -108,9 +152,17 @@ function renderLabs() {
     button.addEventListener('click', (event) => {
       const index = Number(event.currentTarget.dataset.index);
       const labsAtualizados = getLabs();
+      if (!labsAtualizados[index] || !window.confirm(`Excluir o laboratório ${labsAtualizados[index].nome}? Esta ação não pode ser desfeita.`)) return;
       labsAtualizados.splice(index, 1);
       saveLabs(labsAtualizados);
       renderLabs();
+      showFeedback('Laboratório excluído com sucesso.');
+    });
+  });
+  document.querySelectorAll('.admin-edit-lab-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      const lab = getLabs()[Number(button.dataset.index)];
+      if (lab) startEdit(lab);
     });
   });
 }
@@ -136,7 +188,11 @@ labForm.addEventListener('submit', (event) => {
 
   const formData = new FormData(labForm);
   const foto = photoInput.files[0] ? previewImage.src : '';
+  const idEdit = Number(document.getElementById('labIdEdit').value);
+  const labs = getLabs();
+  const fotoAtual = labs.find((lab) => lab.id === idEdit)?.foto || '';
   const novoLab = {
+    id: idEdit || Date.now(),
     nome: formData.get('nomeLaboratorio').toString().trim(),
     bloco: formData.get('blocoLaboratorio').toString().trim(),
     capacidade: Number(formData.get('capacidadeLaboratorio')),
@@ -144,26 +200,36 @@ labForm.addEventListener('submit', (event) => {
     equipamentos: formData.get('equipamentosLaboratorio').toString().trim(),
     status: formData.get('statusLaboratorio').toString(),
     observacoes: formData.get('obsLaboratorio').toString().trim(),
-    foto
+    foto: foto || fotoAtual
   };
 
   if (!novoLab.nome || !novoLab.bloco || !novoLab.tipo || !novoLab.equipamentos || !novoLab.capacidade) {
     return;
   }
 
-  const labs = getLabs();
-  labs.unshift(novoLab);
+  const wasEditing = Boolean(idEdit);
+  if (wasEditing) {
+    const index = labs.findIndex((lab) => lab.id === idEdit);
+    if (index !== -1) labs[index] = novoLab;
+  } else {
+    labs.unshift(novoLab);
+  }
   saveLabs(labs);
   renderLabs();
-  labForm.reset();
-  previewWrapper.style.display = 'none';
-  previewImage.src = '';
+  clearEditMode();
+  showFeedback(wasEditing ? 'Laboratório atualizado com sucesso.' : 'Laboratório cadastrado com sucesso.');
 });
 
 resetLabsBtn.addEventListener('click', () => {
+  if (!window.confirm('Restaurar a lista padrão de laboratórios? Os dados atuais serão removidos.')) return;
   localStorage.removeItem(STORAGE_KEY);
+  clearEditMode();
   renderLabs();
+  showFeedback('Lista padrão restaurada.');
 });
+
+cancelEditBtn?.addEventListener('click', clearEditMode);
+cancelEditTop?.addEventListener('click', clearEditMode);
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {

@@ -14,6 +14,8 @@
   const currentUser = getLoggedUser();
   const currentUsername = currentUser?.usuario || profile;
   const eventsStorageKey = 'compromissosCampusSync';
+  const roomReservationsKey = 'reservasSalasCampusSync';
+  const resourcesStorageKey = 'recursosCampusSync';
   let weekOffset = 0;
 
   const schedules = {
@@ -78,6 +80,132 @@
     localStorage.setItem(eventsStorageKey, JSON.stringify(events));
   }
 
+  function getRoomReservations() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(roomReservationsKey));
+      return Array.isArray(saved) ? saved : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveRoomReservations(reservations) {
+    localStorage.setItem(roomReservationsKey, JSON.stringify(reservations));
+  }
+
+  function getSharedResources() {
+    const defaults = { rooms: ['Sala 101', 'Sala 108', 'Sala 204', 'Sala 214', 'Sala 305', 'Sala de estudos A'], auditoriums: ['Auditório 1', 'Auditório 2', 'Auditório principal'] };
+    try {
+      const saved = JSON.parse(localStorage.getItem(resourcesStorageKey));
+      return saved && Array.isArray(saved.rooms) && Array.isArray(saved.auditoriums) ? saved : defaults;
+    } catch {
+      return defaults;
+    }
+  }
+
+  function saveSharedResources(resources) {
+    localStorage.setItem(resourcesStorageKey, JSON.stringify(resources));
+    window.dispatchEvent(new Event('campusSyncDataChanged'));
+  }
+
+  function setupRoomReservations() {
+    if (!document.getElementById('roomReservationList') && calendarPanel) {
+      calendarPanel.insertAdjacentHTML('afterend', `<section class="room-booking-panel shared-room-panel" id="sharedRoomReservations" aria-labelledby="sharedRoomTitle"><div class="room-booking-header"><div><span class="card-label">Agenda compartilhada</span><h2 id="sharedRoomTitle">Reservas de salas</h2><p>Consulte as salas ocupadas pela comunidade acadêmica.</p></div></div><div class="room-reservation-list" id="roomReservationList"></div></section>`);
+    }
+    const form = document.getElementById('roomBookingForm');
+    const dateInput = form?.querySelector('[name="date"]');
+    if (dateInput && !dateInput.value) dateInput.value = formatDateInput(new Date());
+    if (dateInput) dateInput.min = formatDateInput(new Date());
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const room = data.get('room').toString();
+      const date = data.get('date').toString();
+      const start = data.get('start').toString();
+      const end = data.get('end').toString();
+      const feedback = document.getElementById('roomBookingFeedback');
+      if (end <= start) {
+        if (feedback) feedback.textContent = 'O horário final deve ser depois do horário inicial.';
+        return;
+      }
+      const reservations = getRoomReservations();
+      const hasConflict = reservations.some((reservation) => reservation.room === room && reservation.date === date && start < reservation.end && end > reservation.start);
+      if (hasConflict) {
+        if (feedback) feedback.textContent = 'Esta sala já está reservada nesse intervalo.';
+        return;
+      }
+      reservations.push({ id: `${currentUsername}-${Date.now()}`, owner: currentUsername, date, room, start, end });
+      saveRoomReservations(reservations);
+      form.reset();
+      if (dateInput) dateInput.value = formatDateInput(new Date());
+      if (feedback) feedback.textContent = 'Sala reservada com sucesso e agenda atualizada.';
+      renderRoomReservations();
+    });
+    renderRoomReservations();
+  }
+
+  function renderRoomReservations() {
+    const list = document.getElementById('roomReservationList');
+    if (!list) return;
+    const reservations = getRoomReservations().sort((first, second) => `${first.date}${first.start}`.localeCompare(`${second.date}${second.start}`));
+    list.innerHTML = reservations.length ? reservations.map((reservation) => `<article class="room-reservation-item"><div><strong>${escapeHtml(reservation.room)}</strong><span>${new Date(`${reservation.date}T12:00:00`).toLocaleDateString('pt-BR')} · ${escapeHtml(reservation.start)} às ${escapeHtml(reservation.end)}</span></div><small>Responsável: ${escapeHtml(reservation.owner)}</small>${profile === 'admin' || reservation.owner === currentUsername ? `<button type="button" class="delete-room-reservation" data-reservation-id="${escapeHtml(reservation.id)}">Cancelar</button>` : ''}</article>`).join('') : '<p class="empty-state">Nenhuma sala reservada.</p>';
+    list.querySelectorAll('.delete-room-reservation').forEach((button) => button.addEventListener('click', () => {
+      if (!window.confirm('Cancelar esta reserva de sala?')) return;
+      saveRoomReservations(getRoomReservations().filter((reservation) => reservation.id !== button.dataset.reservationId));
+      renderRoomReservations();
+    }));
+  }
+
+  function setupSharedResources() {
+    if (!calendarPanel || document.getElementById('sharedResourcesPanel')) return;
+    const canManage = profile === 'admin' || profile === 'coordenador';
+    calendarPanel.insertAdjacentHTML('afterend', `<section class="shared-resources-panel" id="sharedResourcesPanel" aria-labelledby="sharedResourcesTitle"><div class="shared-resources-header"><div><span class="card-label">Base compartilhada</span><h2 id="sharedResourcesTitle">Salas, laboratórios e auditórios</h2><p>Alterações feitas pela Administração ou Coordenação aparecem para todos.</p></div>${canManage ? '<button type="button" class="secondary-btn" id="toggleResourceForm">Adicionar espaço</button>' : ''}</div>${canManage ? '<form class="resource-form" id="resourceForm" hidden><select name="type" required><option value="rooms">Sala</option><option value="auditoriums">Auditório</option></select><input name="name" type="text" placeholder="Nome do espaço" required><button class="primary-btn" type="submit">Adicionar</button></form>' : ''}<div class="shared-resource-list" id="sharedResourceList"></div></section>`);
+    document.getElementById('toggleResourceForm')?.addEventListener('click', () => {
+      const form = document.getElementById('resourceForm');
+      form.hidden = !form.hidden;
+      if (!form.hidden) form.querySelector('input').focus();
+    });
+    document.getElementById('resourceForm')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const data = new FormData(event.currentTarget);
+      const resources = getSharedResources();
+      const type = data.get('type').toString();
+      const name = data.get('name').toString().trim();
+      if (!name || resources[type].some((item) => item.toLowerCase() === name.toLowerCase())) return;
+      resources[type].push(name);
+      saveSharedResources(resources);
+      event.currentTarget.reset();
+      event.currentTarget.hidden = true;
+      renderSharedResources();
+    });
+    renderSharedResources();
+  }
+
+  function renderSharedResources() {
+    const list = document.getElementById('sharedResourceList');
+    if (!list) return;
+    const resources = getSharedResources();
+    let labs = [];
+    try { const saved = JSON.parse(localStorage.getItem('laboratoriosCampusSync')); labs = Array.isArray(saved) ? saved : []; } catch { labs = []; }
+    const canManage = profile === 'admin' || profile === 'coordenador';
+    const group = (title, type, items) => `<div class="resource-group"><h3>${title}</h3>${items.length ? items.map((item) => `<div class="shared-resource-item"><span>${escapeHtml(item)}</span>${canManage ? `<button type="button" class="delete-resource-btn" data-resource-type="${type}" data-resource-name="${escapeHtml(item)}">Excluir</button>` : ''}</div>`).join('') : '<p class="empty-state">Nenhum recurso cadastrado.</p>'}</div>`;
+    list.innerHTML = group('Salas', 'rooms', resources.rooms) + group('Auditórios', 'auditoriums', resources.auditoriums) + group('Laboratórios', 'labs', labs.map((lab) => lab.nome));
+    list.querySelectorAll('.delete-resource-btn').forEach((button) => button.addEventListener('click', () => {
+      const type = button.dataset.resourceType;
+      const name = button.dataset.resourceName;
+      if (!window.confirm(`Excluir ${name} da base compartilhada?`)) return;
+      if (type === 'labs') {
+        try { const savedLabs = JSON.parse(localStorage.getItem('laboratoriosCampusSync')) || []; localStorage.setItem('laboratoriosCampusSync', JSON.stringify(savedLabs.filter((lab) => lab.nome !== name))); } catch { return; }
+      } else {
+        const nextResources = getSharedResources();
+        nextResources[type] = nextResources[type].filter((item) => item !== name);
+        saveSharedResources(nextResources);
+      }
+      renderSharedResources();
+      window.dispatchEvent(new Event('campusSyncDataChanged'));
+    }));
+  }
+
   function getLocationOptions() {
     let labs = [];
     try {
@@ -87,8 +215,9 @@
       labs = [];
     }
     if (!labs.length) labs = ['Laboratório de Informática 01', 'Laboratório de Química', 'Laboratório de Eletrônica'];
-    const rooms = ['Sala 101', 'Sala 108', 'Sala 204', 'Sala 214', 'Sala da coordenação', 'Sala dos professores'];
-    const auditoriums = ['Auditório 1', 'Auditório 2', 'Auditório principal'];
+    const sharedResources = getSharedResources();
+    const rooms = sharedResources.rooms;
+    const auditoriums = sharedResources.auditoriums;
     const options = (items) => items.map((item) => `<option value="${escapeHtml(item)}">${escapeHtml(item)}</option>`).join('');
     return `<option value="">Selecione um local</option><optgroup label="Laboratórios">${options(labs)}</optgroup><optgroup label="Salas">${options(rooms)}</optgroup><optgroup label="Auditórios">${options(auditoriums)}</optgroup>`;
   }
@@ -324,4 +453,16 @@
   renderCalendar();
   renderNotifications();
   renderUsers();
+  setupRoomReservations();
+  setupSharedResources();
+  window.addEventListener('campusSyncDataChanged', () => {
+    renderSharedResources();
+    renderRoomReservations();
+  });
+  window.addEventListener('storage', (event) => {
+    if ([resourcesStorageKey, 'laboratoriosCampusSync', roomReservationsKey].includes(event.key)) {
+      renderSharedResources();
+      renderRoomReservations();
+    }
+  });
 })();

@@ -11,6 +11,10 @@ const sidebar = document.getElementById('sidebarCoordenador');
 const labFotoInput = document.getElementById('labFoto');
 const labPreviewImage = document.getElementById('labPreviewImageCoordenador');
 const labPreviewWrapper = document.getElementById('labPhotoPreviewCoordenador');
+const editBanner = document.getElementById('coordEditBanner');
+const cancelEditTop = document.getElementById('cancelEditTop');
+const saveLabBtn = document.getElementById('coordSaveLabBtn');
+const labFeedback = document.getElementById('coordLabFeedback');
 
 function getUsuarioLogado() {
   const localUser = localStorage.getItem('usuarioLogado');
@@ -67,12 +71,17 @@ const defaultLabs = [
 ];
 
 function getLabs() {
-  const labs = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  return Array.isArray(labs) && labs.length ? labs : defaultLabs;
+  try {
+    const labs = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return Array.isArray(labs) && labs.length ? labs : defaultLabs;
+  } catch {
+    return defaultLabs;
+  }
 }
 
 function saveLabs(labs) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(labs));
+  window.dispatchEvent(new Event('campusSyncDataChanged'));
 }
 
 function getFilteredLabs() {
@@ -105,6 +114,37 @@ function setLabPreview(src) {
 
   labPreviewWrapper.style.display = 'block';
   labPreviewImage.src = src;
+}
+
+function showFeedback(text) {
+  if (!labFeedback) return;
+  labFeedback.textContent = text;
+  window.setTimeout(() => { labFeedback.textContent = ''; }, 3500);
+}
+
+function clearEditMode() {
+  labForm.reset();
+  document.getElementById('labIdEdit').value = '';
+  setLabPreview('');
+  if (labFotoInput) labFotoInput.value = '';
+  if (editBanner) editBanner.hidden = true;
+  if (saveLabBtn) saveLabBtn.textContent = 'Salvar laboratório';
+}
+
+function startEdit(lab) {
+  document.getElementById('labIdEdit').value = lab.id;
+  document.getElementById('labNome').value = lab.nome;
+  document.getElementById('labBloco').value = lab.bloco;
+  document.getElementById('labCapacidade').value = lab.capacidade;
+  document.getElementById('labTipo').value = lab.tipo;
+  document.getElementById('labEquipamentos').value = lab.equipamentos;
+  document.getElementById('labStatus').value = lab.status;
+  document.getElementById('labObs').value = lab.observacoes || '';
+  setLabPreview(lab.foto || '');
+  if (editBanner) editBanner.hidden = false;
+  if (saveLabBtn) saveLabBtn.textContent = 'Atualizar laboratório';
+  document.getElementById('labNome').focus();
+  labForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 labFotoInput.addEventListener('change', () => {
@@ -159,24 +199,18 @@ function renderLabs() {
       const lab = getLabs().find((item) => item.id === Number(btn.dataset.id));
       if (!lab) return;
 
-      document.getElementById('labIdEdit').value = lab.id;
-      document.getElementById('labNome').value = lab.nome;
-      document.getElementById('labBloco').value = lab.bloco;
-      document.getElementById('labCapacidade').value = lab.capacidade;
-      document.getElementById('labTipo').value = lab.tipo;
-      document.getElementById('labEquipamentos').value = lab.equipamentos;
-      document.getElementById('labStatus').value = lab.status;
-      document.getElementById('labObs').value = lab.observacoes || '';
-      setLabPreview(lab.foto || '');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      startEdit(lab);
     });
   });
 
   document.querySelectorAll('.delete-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
+      const lab = getLabs().find((item) => item.id === Number(btn.dataset.id));
+      if (!lab || !window.confirm(`Excluir o laboratório ${lab.nome}? Esta ação não pode ser desfeita.`)) return;
       const updated = getLabs().filter((lab) => lab.id !== Number(btn.dataset.id));
       saveLabs(updated);
       renderLabs();
+      showFeedback('Laboratório excluído com sucesso.');
     });
   });
 }
@@ -212,27 +246,27 @@ labForm.addEventListener('submit', (event) => {
   }
 
   saveLabs(labs);
-  labForm.reset();
-  document.getElementById('labIdEdit').value = '';
-  setLabPreview('');
-  if (labFotoInput) labFotoInput.value = '';
+  const wasEditing = Boolean(idEdit);
+  clearEditMode();
   renderLabs();
+  showFeedback(wasEditing ? 'Laboratório atualizado com sucesso.' : 'Laboratório cadastrado com sucesso.');
 });
 
 labSearch.addEventListener('input', renderLabs);
 labFilterStatus.addEventListener('change', renderLabs);
 
 resetBtn.addEventListener('click', () => {
+  if (!window.confirm('Restaurar a lista padrão de laboratórios? Os dados atuais serão removidos.')) return;
   localStorage.removeItem(STORAGE_KEY);
+  clearEditMode();
   renderLabs();
+  showFeedback('Lista padrão restaurada.');
 });
 
 cancelEditBtn.addEventListener('click', () => {
-  labForm.reset();
-  document.getElementById('labIdEdit').value = '';
-  setLabPreview('');
-  if (labFotoInput) labFotoInput.value = '';
+  clearEditMode();
 });
+cancelEditTop?.addEventListener('click', clearEditMode);
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {

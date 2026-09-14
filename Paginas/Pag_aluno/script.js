@@ -159,6 +159,10 @@ function getReservations() {
 studentLabFilter.addEventListener('change', renderStudentLabs);
 studentLabSearch?.addEventListener('input', renderStudentLabs);
 studentLabSort?.addEventListener('change', renderStudentLabs);
+window.addEventListener('campusSyncDataChanged', renderStudentLabs);
+window.addEventListener('storage', (event) => {
+  if (event.key === STORAGE_KEY) renderStudentLabs();
+});
 
 if (logoutBtn) {
   logoutBtn.addEventListener('click', () => {
