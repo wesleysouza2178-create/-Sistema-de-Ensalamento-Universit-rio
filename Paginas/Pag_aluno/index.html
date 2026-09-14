@@ -28,9 +28,9 @@
       <main class="dashboard-main">
         <div class="dashboard-topbar">
           <div><h1>Olá, aluno</h1><p class="dashboard-welcome">Acompanhe sua rotina acadêmica em um só lugar.</p></div>
-          <div class="topbar-actions"><button class="icon-btn" id="notificationToggle" type="button" aria-label="Abrir notificações">♧</button><button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar contraste">◐</button><div class="user-pill" id="userBadge">Carregando...</div></div>
+          <div class="topbar-actions"><button class="icon-btn" id="notificationToggle" type="button" aria-label="Abrir notificações">♧</button><button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar contraste">◐</button><div class="user-pill" id="userBadge">Carregando...</div><button class="logout-btn" id="logoutBtn" type="button">Sair</button></div>
         </div>
-        <div class="dashboard-toolbar"><input class="dashboard-search" id="dashboardSearch" type="search" placeholder="Buscar na sua agenda e painel..." /><button class="secondary-btn" id="exportSchedule" type="button">Exportar agenda</button></div>
+        <div class="dashboard-toolbar"><input class="dashboard-search" id="dashboardSearch" type="search" placeholder="Buscar na sua agenda e painel..." /><button class="secondary-btn" id="exportSchedule" type="button">Gerar agenda PDF</button><button class="secondary-btn" id="printSchedule" type="button">Imprimir</button></div>
 
         <section class="dashboard-grid dashboard-grid--wide" id="overview">
           <article class="dashboard-card" id="horarios">
@@ -68,7 +68,7 @@
 
         <section class="calendar-panel" id="calendario" aria-labelledby="calendarTitle">
           <div class="calendar-header"><div><h2 id="calendarTitle">Calendário de aulas</h2><span id="calendarWeekLabel" class="dashboard-welcome"></span></div><div class="calendar-actions"><button class="secondary-btn" id="previousWeek" type="button" aria-label="Semana anterior">←</button><button class="secondary-btn" id="todayWeek" type="button">Hoje</button><button class="secondary-btn" id="nextWeek" type="button" aria-label="Próxima semana">→</button></div></div>
-          <div class="calendar-grid" id="weeklyCalendar"></div>
+          <div class="calendar-grid" id="weeklyCalendar"></div><div class="calendar-summary" id="calendarSummary"></div>
         </section>
 
         <section class="insight-panel">
@@ -105,9 +105,6 @@
           <div id="studentLabList" class="lab-visual-list"></div>
         </section>
 
-        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
-          <button class="logout-btn" id="logoutBtn" type="button">Sair</button>
-        </div>
       </main>
     </div>
 

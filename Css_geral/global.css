@@ -545,7 +545,10 @@ iframe {
   .dashboard-grid--wide, .insight-panel { grid-template-columns: 1fr; }
   .dashboard-topbar { align-items: flex-start; flex-direction: column; }
   .calendar-grid { grid-template-columns: repeat(7, 120px); }
+  .calendar-summary { grid-template-columns: 1fr; }
   .user-pill { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .report-actions { width: 100%; justify-content: stretch; }
+  .report-actions button { flex: 1 1 100%; }
 }
 
 .dashboard-body {
@@ -655,22 +658,52 @@ iframe {
 .notification-panel h3 { color: var(--azul-escuro); margin-bottom: .75rem; }
 .notification-item { display: flex; gap: .65rem; padding: .7rem 0; border-top: 1px solid var(--cinza-100); color: var(--cinza-700); font-size: .9rem; }
 .notification-item strong { display: block; color: var(--texto); }
-.calendar-panel { margin-top: 1.5rem; background: #fff; border: 1px solid rgba(13,59,102,.06); border-radius: 1.3rem; box-shadow: 0 14px 28px rgba(13,59,102,.06); padding: 1.25rem; }
-.calendar-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.calendar-panel { margin-top: 1.5rem; background: #fff; border: 1px solid rgba(13,59,102,.06); border-radius: 1.3rem; box-shadow: 0 14px 28px rgba(13,59,102,.06); padding: clamp(1rem, 2.5vw, 1.5rem); overflow: hidden; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.15rem; padding-bottom: 1rem; border-bottom: 1px solid var(--cinza-100); flex-wrap: wrap; }
 .calendar-header h2 { color: var(--azul-escuro); font-size: clamp(1.25rem, 2.5vw, 1.8rem); }
-.calendar-actions { display: flex; gap: .5rem; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(110px, 1fr)); overflow-x: auto; gap: .55rem; }
-.calendar-day { min-height: 150px; background: #f7faff; border: 1px solid rgba(13,59,102,.06); border-radius: .9rem; padding: .65rem; }
-.calendar-day.is-today { border-color: var(--azul-medio); box-shadow: inset 0 3px 0 var(--azul-medio); }
-.calendar-day h3 { color: var(--azul-escuro); font-size: .85rem; margin-bottom: .5rem; }
-.calendar-date { color: var(--cinza-700); font-size: .75rem; display: block; margin-top: .15rem; }
-.class-event { display: grid; gap: .15rem; padding: .6rem; border-radius: .7rem; background: #eaf3ff; border-left: 3px solid var(--azul-medio); margin-top: .45rem; font-size: .73rem; color: var(--azul-escuro); }
-.class-event strong { font-size: .76rem; }
-.class-event span { color: var(--cinza-700); }
-.empty-calendar { color: var(--cinza-700); font-size: .78rem; margin-top: 1rem; }
+.calendar-actions { display: flex; gap: .5rem; align-items: center; }
+.calendar-actions .secondary-btn { min-width: 42px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(125px, 1fr)); overflow-x: auto; gap: .65rem; padding: .1rem .1rem .5rem; scrollbar-width: thin; }
+.calendar-day { min-height: 170px; background: linear-gradient(180deg, #f9fbfe 0%, #f2f7fc 100%); border: 1px solid rgba(13,59,102,.08); border-radius: .9rem; padding: .75rem; transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
+.calendar-day:hover { border-color: rgba(29,94,168,.28); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(13,59,102,.07); }
+.calendar-day.is-today { border-color: var(--azul-medio); box-shadow: inset 0 3px 0 var(--azul-medio), 0 8px 16px rgba(29,94,168,.09); }
+.calendar-day-header { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; padding-bottom: .55rem; border-bottom: 1px solid rgba(13,59,102,.08); }
+.calendar-day h3 { color: var(--azul-escuro); font-size: .85rem; margin: 0; }
+.calendar-date { color: var(--cinza-700); font-size: .72rem; display: block; }
+.class-event { display: grid; gap: .18rem; padding: .65rem; border-radius: .7rem; background: #eaf3ff; border-left: 3px solid var(--azul-medio); margin-top: .55rem; font-size: .73rem; color: var(--azul-escuro); }
+.class-event strong { font-size: .76rem; line-height: 1.25; }
+.class-event span { color: var(--cinza-700); line-height: 1.25; }
+.class-event .event-time { color: var(--azul-medio); font-weight: 800; font-size: .72rem; }
+.empty-calendar { color: #7b8b9b; font-size: .76rem; margin: 1rem 0 0; text-align: center; }
+.calendar-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .65rem; margin-top: 1rem; }
+.calendar-summary span { padding: .75rem .85rem; border: 1px solid rgba(13,59,102,.08); border-radius: .75rem; background: #f7faff; color: var(--cinza-700); font-size: .78rem; }
+.calendar-summary strong { display: block; color: var(--azul-medio); font-size: 1.05rem; margin-bottom: .15rem; }
 .quick-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1rem; }
 .quick-actions button { border: 1px solid rgba(13,59,102,.1); background: #fff; color: var(--azul-escuro); border-radius: .7rem; padding: .65rem .85rem; font: inherit; font-weight: 700; cursor: pointer; }
 .quick-actions button:hover { background: var(--azul-claro); }
+.management-panel, .report-panel { margin-top: 1.5rem; padding: 1.35rem; background: #fff; border: 1px solid rgba(13,59,102,.06); border-radius: 1.3rem; box-shadow: 0 14px 28px rgba(13,59,102,.06); }
+.management-header, .management-toolbar, .report-panel { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.management-header { margin-bottom: 1rem; }
+.management-header h2, .report-panel h2 { color: var(--azul-escuro); }
+.management-header p, .report-panel p { color: var(--cinza-700); margin-top: .2rem; }
+.management-toolbar { justify-content: flex-start; margin-bottom: 1rem; }
+.management-toolbar input, .management-toolbar select { flex: 1 1 220px; min-width: 180px; padding: .75rem .9rem; border: 1px solid rgba(13,59,102,.12); border-radius: .75rem; background: #f8fbff; font: inherit; }
+.user-table-wrap { overflow-x: auto; }
+.user-table { width: 100%; border-collapse: collapse; min-width: 580px; }
+.user-table th, .user-table td { padding: .8rem .7rem; text-align: left; border-bottom: 1px solid var(--cinza-100); color: var(--cinza-700); }
+.user-table th { color: var(--azul-escuro); font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; }
+.user-table td strong { color: var(--texto); }
+.user-actions { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.user-role-select { min-width: 116px; padding: .45rem .5rem; border: 1px solid rgba(13,59,102,.12); border-radius: .55rem; background: #f8fbff; color: var(--texto); font: inherit; font-size: .78rem; }
+.save-user-btn { border: 0; border-radius: .55rem; padding: .45rem .65rem; background: var(--azul-claro); color: var(--azul-escuro); font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+.save-user-btn:hover { background: #d3e6fa; }
+.delete-user-btn { border: 0; border-radius: .55rem; padding: .45rem .65rem; background: rgba(180,35,24,.09); color: #b42318; font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+.delete-user-btn:hover { background: rgba(180,35,24,.16); }
+.protected-user { color: var(--cinza-700); font-size: .76rem; font-style: italic; }
+.report-panel { align-items: flex-start; }
+.report-actions { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: flex-end; }
+body.theme-dim .management-panel, body.theme-dim .report-panel, body.theme-dim .management-toolbar input, body.theme-dim .management-toolbar select { background: #17324f; color: #eef5ff; }
+body.theme-dim .user-table td, body.theme-dim .user-table th { color: #d5e1ed; border-color: #2a4968; }
 body.theme-dim { background: #10243b; color: #eef5ff; }
 body.theme-dim .dashboard-main { background: #10243b; }
 body.theme-dim .dashboard-card, body.theme-dim .insight-card, body.theme-dim .calendar-panel, body.theme-dim .lab-panel, body.theme-dim .lab-visual-panel, body.theme-dim .coord-lab-panel, body.theme-dim .notification-panel, body.theme-dim .quick-actions button, body.theme-dim .icon-btn, body.theme-dim .user-pill { background: #17324f; color: #eef5ff; }
@@ -810,13 +843,19 @@ body.theme-dim .calendar-day, body.theme-dim .insight-list li { background: #1d3
 }
 
 .logout-btn {
-  background: transparent;
-  border: 1px solid rgba(13, 59, 102, 0.12);
-  color: var(--azul-escuro);
+  background: #c62828;
+  border: 1px solid #a91f1f;
+  color: #ffffff;
   padding: 0.7rem 1rem;
-  border-radius: 999px;
+  border-radius: 0.7rem;
   font-weight: 700;
   cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+
+.logout-btn:hover {
+  background: #a91f1f;
+  transform: translateY(-1px);
 }
 
 .lab-panel {

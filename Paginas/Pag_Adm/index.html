@@ -27,12 +27,12 @@
       <main class="dashboard-main">
         <div class="dashboard-topbar">
           <div><h1>Olá, administração</h1><p class="dashboard-welcome">Tenha uma visão segura e atualizada da operação.</p></div>
-          <div class="topbar-actions"><button class="icon-btn" id="notificationToggle" type="button" aria-label="Abrir notificações">♧</button><button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar contraste">◐</button><div class="user-pill" id="userBadge">Carregando...</div></div>
+          <div class="topbar-actions"><button class="icon-btn" id="notificationToggle" type="button" aria-label="Abrir notificações">♧</button><button class="icon-btn" id="themeToggle" type="button" aria-label="Alternar contraste">◐</button><div class="user-pill" id="userBadge">Carregando...</div><button class="logout-btn" id="logoutBtn" type="button">Sair</button></div>
         </div>
-        <div class="dashboard-toolbar"><input class="dashboard-search" id="dashboardSearch" type="search" placeholder="Buscar usuário, recurso ou relatório..." /><button class="secondary-btn" id="exportSchedule" type="button">Exportar agenda</button></div>
+        <div class="dashboard-toolbar"><input class="dashboard-search" id="dashboardSearch" type="search" placeholder="Buscar usuário, recurso ou relatório..." /><button class="secondary-btn" id="exportSchedule" type="button">Gerar agenda PDF</button><button class="secondary-btn" id="printSchedule" type="button">Imprimir</button></div>
 
         <section class="dashboard-grid dashboard-grid--wide" id="overview">
-          <article class="dashboard-card" id="usuarios">
+          <article class="dashboard-card" id="resumoUsuarios">
             <span class="card-label">Usuários</span>
             <h2>1.240 cadastrados</h2>
             <p>+42 neste mês</p>
@@ -57,7 +57,13 @@
           </article>
         </section>
 
-        <section class="calendar-panel" id="calendario" aria-labelledby="calendarTitle"><div class="calendar-header"><div><h2 id="calendarTitle">Calendário administrativo</h2><span id="calendarWeekLabel" class="dashboard-welcome"></span></div><div class="calendar-actions"><button class="secondary-btn" id="previousWeek" type="button" aria-label="Semana anterior">←</button><button class="secondary-btn" id="todayWeek" type="button">Hoje</button><button class="secondary-btn" id="nextWeek" type="button" aria-label="Próxima semana">→</button></div></div><div class="calendar-grid" id="weeklyCalendar"></div></section>
+        <section class="management-panel" id="usuarios" aria-labelledby="usersTitle">
+          <div class="management-header"><div><h2 id="usersTitle">Usuários cadastrados</h2><p>Consulte perfis, acesso e situação dos usuários.</p></div><button class="secondary-btn" id="addDemoUser" type="button">Adicionar usuário</button></div>
+          <div class="management-toolbar"><input id="userSearch" type="search" placeholder="Buscar por nome ou usuário" /><select id="userProfileFilter"><option value="todos">Todos os perfis</option><option value="aluno">Alunos</option><option value="professor">Professores</option><option value="coordenador">Coordenadores</option><option value="admin">Administração</option></select></div>
+          <div class="user-table-wrap"><table class="user-table"><thead><tr><th>Usuário</th><th>Perfil</th><th>Status</th><th>Último acesso</th><th>Ações</th></tr></thead><tbody id="userList"></tbody></table></div>
+        </section>
+
+        <section class="calendar-panel" id="calendario" aria-labelledby="calendarTitle"><div class="calendar-header"><div><h2 id="calendarTitle">Calendário administrativo</h2><span id="calendarWeekLabel" class="dashboard-welcome"></span></div><div class="calendar-actions"><button class="secondary-btn" id="previousWeek" type="button" aria-label="Semana anterior">←</button><button class="secondary-btn" id="todayWeek" type="button">Hoje</button><button class="secondary-btn" id="nextWeek" type="button" aria-label="Próxima semana">→</button></div></div><div class="calendar-grid" id="weeklyCalendar"></div><div class="calendar-summary" id="calendarSummary"></div></section>
 
         <section class="insight-panel" id="relatorios">
           <div class="insight-card">
@@ -77,6 +83,11 @@
               <li><span>Servidor principal</span><span class="status-pill alert">Atenção</span></li>
             </ul>
           </div>
+        </section>
+
+        <section class="report-panel" aria-labelledby="reportTitle">
+          <div><h2 id="reportTitle">Relatórios operacionais</h2><p>Baixe um resumo atualizado para compartilhar ou arquivar.</p></div>
+          <div class="report-actions"><button class="primary-btn" data-report="campus" type="button">Gerar PDF do campus</button><button class="secondary-btn" data-report="users" type="button">PDF de usuários</button><button class="secondary-btn" data-report="labs" type="button">PDF de laboratórios</button></div>
         </section>
 
         <section class="lab-panel" id="labs" aria-labelledby="labTitle">
@@ -153,9 +164,6 @@
           </div>
         </section>
 
-        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
-          <button class="logout-btn" id="logoutBtn" type="button">Sair</button>
-        </div>
       </main>
     </div>
 
